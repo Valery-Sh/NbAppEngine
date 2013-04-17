@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Arguments
+KENAI_HOST=$1
+KENAI_USER=$2
+KENAI_PASSWD=$3
+KENAI_PROJECT=$4
+KENAI_FILE=$5
+KENAI_FILE_TYPE=$6
+KENAI_FILE_ID=$7
+KENAI_FILE_TITLE=$8
+KENAI_FILE_DESC=$9
+
+# Local
+LOGIN_CHECK_STRING="redirected"
+UPLOAD_CHECK_STRING=${KENAI_FILE_ID}
+
+# Login
+COOKIE=cookie
+AUTHENTICITY_TOKEN=$(curl -s -c ${COOKIE} https://${KENAI_HOST}/people/login | awk '/authenticity_token/ { print $7 }')
+AUTHENTICITY_TOKEN=${AUTHENTICITY_TOKEN:7:40}
+RESULT=$(curl -s -b ${COOKIE} -c ${COOKIE} -d "authenticity_token=${AUTHENTICITY_TOKEN}&authenticator[username]=${KENAI_USER}&authenticator[password]=${KENAI_PASSWD}&authenticator[remember_me]=0&login=submit" https://${KENAI_HOST}/people/login)
+
+# Login check
+if grep -q ${LOGIN_CHECK_STRING} <<< ${RESULT}; then
+    echo "SUCCESSFULLY logged in to ${KENAI_HOST} as ${KENAI_USER}"
+else
+    echo "FAILED to login to ${KENAI_HOST} as ${KENAI_USER}"
+fi
+
+# Upload
+AUTHENTICITY_TOKEN=$(curl -s -b ${COOKIE} http://${KENAI_HOST}/projects/${KENAI_PROJECT}/downloads/edit/${KENAI_FILE_ID} | awk '/authenticity_token/ { print $8 }')
+AUTHENTICITY_TOKEN=${AUTHENTICITY_TOKEN:7:40}
+RESULT=$(curl -s -b ${COOKIE} -H "Expect:" -F "download[uploaded_data]=@${KENAI_FILE};type=${KENAI_FILE_TYPE}" -F "authenticity_token=${AUTHENTICITY_TOKEN}" -F "download[title]=${KENAI_FILE_TITLE}" -F "download[description]=${KENAI_FILE_DESC}" -F "download[tag_list]=" http://${KENAI_HOST}/projects/${KENAI_PROJECT}/downloads/edit/${KENAI_FILE_ID})
+
+# Upload check
+if grep -q "${UPLOAD_CHECK_STRING}" <<< ${RESULT}; then
+    echo "SUCCESSFULLY uploaded"
+else
+    echo "FAILED to upload file"
+fi
+
+# Exit
+exit 0

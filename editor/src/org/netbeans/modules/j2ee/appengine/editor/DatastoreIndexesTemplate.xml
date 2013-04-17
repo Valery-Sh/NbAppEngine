@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<datastore-indexes
+  xmlns="http://appengine.google.com/ns/datastore-indexes/1.0"
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xsi:schemaLocation='http://kenai.com/projects/nbappengine/downloads/download/schema/datastore-indexes.xsd datastore-indexes.xsd'
+  autoGenerate="true">
+      
+</datastore-indexes>

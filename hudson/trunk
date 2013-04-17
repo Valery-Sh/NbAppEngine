@@ -1,0 +1,31 @@
+#!/bin/bash -x
+TRUNK_ID=`wget -q http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/lastSuccessfulBuild/buildNumber -O -`
+
+mkdir -p nbbuild
+
+cd nbbuild
+rm -rf netbeans
+mkdir netbeans
+mkdir -p download
+
+rm `ls download/netbeans-hudson-trunk* | grep -v $TRUNK_ID`
+
+cd netbeans
+
+download_and_unpack_cluster() {
+    if [ ! -e ../download/netbeans-hudson-trunk-$TRUNK_ID-$1.zip ] ; then
+        wget -q -N http://deadlock.netbeans.org/hudson/job/nbms-and-javadoc/$TRUNK_ID/artifact/nbbuild/dist/hudson-nbms-and-javadoc-$TRUNK_ID-$1.zip -O ../download/netbeans-hudson-trunk-$TRUNK_ID-$1.zip || exit
+    fi;
+    unzip -q ../download/*$TRUNK_ID-$1.zip || exit
+}
+
+for cluster in ide platform java harness nb enterprise; do
+    download_and_unpack_cluster $cluster;
+done
+
+cd ../..
+
+ant -Dnbplatform.default.harness.dir=$PWD/nbbuild/netbeans/harness -Dnbplatform.default.netbeans.dest.dir=$PWD/nbbuild/netbeans build || exit
+ant -Dnbplatform.default.harness.dir=$PWD/nbbuild/netbeans/harness -Dnbplatform.default.netbeans.dest.dir=$PWD/nbbuild/netbeans test || exit
+ant -Ddist.base=$DIST_BASE -Dnbplatform.default.harness.dir=$PWD/nbbuild/netbeans/harness -Dnbplatform.default.netbeans.dest.dir=$PWD/nbbuild/netbeans nbms || exit
+gzip <build/updates/updates.xml >build/updates/updates.xml.gz
