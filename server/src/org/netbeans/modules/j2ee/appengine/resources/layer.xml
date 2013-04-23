@@ -18,15 +18,6 @@
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <!--folder name="Services">
-        <folder name="Hidden">
-            <file name="org-my-ant-registration.instance">
-                <attr name="instanceCreate" methodvalue="org.apache.tools.ant.module.spi.AutomaticExtraClasspath.url"/>
-                <attr name="url" urlvalue="nbinst://org.my/modules/ext/org-my.jar"/>
-                <attr name="instanceOf" stringvalue="org.apache.tools.ant.module.spi.AutomaticExtraClasspathProvider"/>
-            </file>
-        </folder>
-    </folder-->    
     <folder name="J2EE">
         <folder name="DeploymentPlugins">
             <folder name="AppEngine">
