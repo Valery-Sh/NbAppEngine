@@ -93,7 +93,10 @@ public class AppEngineAntLogger extends AntLogger {
         try {
             AppEngineDeploymentManager dm = (AppEngineDeploymentManager) AppEngineDeploymentFactory.getInstance().getDeploymentManager("deployer:appengine:localhost:8181/-1198750328", null, null);
             Project dp = dm.getSelected();
+MyLOG.log("%%% buildStarted  dm.prj=" + dp);            
             if ( ! p.equals(dp) ) {
+MyLOG.log("%%% buildStarted  (! p.equals(dp)) == TRUE; prj=" + p);
+                
                 dm.setSelected(p);
             }
         } catch (DeploymentManagerCreationException dmce) {

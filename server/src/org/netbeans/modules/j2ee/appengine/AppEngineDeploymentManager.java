@@ -65,6 +65,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     private Project selected;
 
     public AppEngineDeploymentManager(String uri) {
+MyLOG.log("AppEngineDeploymentManager.CONSTRUCTOR");        
         this.uri = uri;
         this.properties = new AppEnginePluginProperties(this);
         this.target = new AppEngineTarget(getProperties().getInstanceProperties().getProperty(InstanceProperties.DISPLAY_NAME_ATTR));

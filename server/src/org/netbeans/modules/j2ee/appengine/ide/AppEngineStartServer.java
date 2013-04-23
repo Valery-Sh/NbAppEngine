@@ -53,7 +53,7 @@ public class AppEngineStartServer extends StartServer {
     private AppEngineStartServer(AppEngineDeploymentManager manager) {
         MyLOG.log("AppEngineStartServer CONSTRUCTOR");
         this.manager = manager;
-        manager.setSelected(null);
+        
     }
 
     public synchronized static AppEngineStartServer getInstance(AppEngineDeploymentManager manager) {
@@ -125,7 +125,7 @@ for ( Object o : c) {
     }
     @Override
     public ProgressObject startDebugging(Target target) {
-MyLOG.log("AppEngineStartServer.startDebugging");
+MyLOG.log("AppEngineStartServer.startDebugging(target) prj=" + manager.getSelected());
 /*        current = new AppEngineProgressObject(null, false, AppEngineServerMode.DEBUG);  
         mode = AppEngineServerMode.DEBUG;
        // setReallyRunning(false);
