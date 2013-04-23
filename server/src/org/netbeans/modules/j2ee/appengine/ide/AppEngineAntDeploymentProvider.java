@@ -45,6 +45,7 @@ public class AppEngineAntDeploymentProvider implements AntDeploymentProvider {
 
     @Override
     public void writeDeploymentScript(OutputStream os, Object moduleType) throws IOException {
+        MyLOG.log("AppEngineAntDeploymentProvider.write os.class="+os.getClass());
         String xml = convertStreamToString(AppEngineDeploymentManager.class.getResourceAsStream("resources/appengine-ant-deploy.xml"));
         
         // Set sdk.path property

@@ -23,7 +23,6 @@ public class MyLOG {
         FileObject deployDir = selected.getDeployedProjectDirectory();
         String dirName = dir == null ? null : dir.getName();
         String depName = deployDir == null ? null : deployDir.getName();
-        Logger.getLogger(MyLOG.class.getName()).log(Level.WARNING, "+++++ " + msg
-                 + "; projDir="+dirName + "; deployProj=" + depName);                        
+        Logger.getLogger(MyLOG.class.getName()).log(Level.WARNING, "+++++ " + msg );                        
     }
 }

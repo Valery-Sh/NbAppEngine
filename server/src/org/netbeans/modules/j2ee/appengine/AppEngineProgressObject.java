@@ -26,6 +26,7 @@ import javax.enterprise.deploy.spi.status.ClientConfiguration;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.netbeans.modules.j2ee.appengine.ide.AppEngineServerMode;
 import org.openide.util.NbBundle;
 
 /**
@@ -35,10 +36,12 @@ public class AppEngineProgressObject implements ProgressObject {
 
     private AppEngineModule module;
     private boolean failed;
-
-    public AppEngineProgressObject(AppEngineModule module, boolean failed) {
+    private final AppEngineServerMode mode;
+    
+    public AppEngineProgressObject(AppEngineModule module, boolean failed,AppEngineServerMode mode ) {
         this.module = module;
         this.failed = failed;
+        this.mode = mode;
     }
 
     @Override
@@ -85,4 +88,10 @@ MyLOG.log("AppEngineProgressObject.getResultTargetModuleIDs moduleID" + module.g
     @Override
     public void removeProgressListener(ProgressListener arg0) {
     }
+
+    public AppEngineServerMode getMode() {
+        return mode;
+    }
+    
+    
 }

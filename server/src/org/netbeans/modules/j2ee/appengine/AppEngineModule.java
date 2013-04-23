@@ -36,7 +36,7 @@ public class AppEngineModule implements TargetModuleID {
         this.hostname = hostname;
         this.port = port;
         this.contextRoot = contextRoot;
-MyLOG.log("AppEngineModule costr target="+target+"; host=" + hostname + "; port="+ port);        
+MyLOG.log("AppEngineModule costr contextRoot=" + contextRoot + "; target="+target+"; host=" + hostname + "; port="+ port);        
     }
 
     @Override
@@ -46,13 +46,15 @@ MyLOG.log("AppEngineModule costr target="+target+"; host=" + hostname + "; port=
 
     @Override
     public String getModuleID() {
-MyLOG.log("AppEngineModule.getModuleID() context="+ contextRoot);                
-        return NbBundle.getMessage(AppEngineModule.class, "TITLE_Application") + "/" + contextRoot;
+MyLOG.log("AppEngineModule.getModuleID() context="+ contextRoot);    
+        return getWebURL() + "/" + contextRoot;
+//        return NbBundle.getMessage(AppEngineModule.class, "TITLE_Application") + "/" + contextRoot;
     }
 
     @Override
     public String getWebURL() {
 MyLOG.log("AppEngineModule.getWebURL()");        
+        //return target.getServerUri () + "/" + contextRoot;
         return "http://" + hostname + ":" + port;
     }
 

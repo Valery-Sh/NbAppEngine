@@ -36,7 +36,7 @@
     </target>
 
     <!-- Start Google App Engine Development Server In Debug Mode -->
-    <target name="runserver-debug" depends="datanucleusenhance"
+    <target name="runserver-debug" depends="debug,datanucleusenhance"
       description="Starts the development server.">
         <dev_appserver war="${build.web.dir}" port="${appengine.http.port}" >
             <options>

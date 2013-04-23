@@ -25,14 +25,20 @@ import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.tools.ant.module.AntSettings;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.EditableProperties;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
@@ -94,7 +100,30 @@ public class AppEnginePluginUtils {
     }
 
     public static boolean isAppEngineProject(Project project) {
-        return getAppEngineFile(project) != null;
+        
+        if ( project == null ) {
+MyLOG.log("^^^ isAppEngineProject=FALSE 0");                    
+            return false;
+        }
+        EditableProperties ep = new EditableProperties(false);
+        FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+        try {
+            ep.load(fo.getInputStream());
+        } catch(IOException ioe) {
+            return false;
+        }
+        String p = ep.getProperty("j2ee.server.instance");
+        if ( p != null && p.startsWith("deployer:appengine:")) {
+MyLOG.log("^^^ isAppEngineProject=TRUE");
+            return true;
+        }
+MyLOG.log("^^^ isAppEngineProject=FALSE 1");        
+        return false;
+    }
+    
+    public static boolean isAppEngineProject(File file) {
+        return isAppEngineProject(FileOwnerQuery.getOwner(FileUtil.toFileObject(file)));
+        //return getAppEngineFile(project) != null;
     }
 
     public static FileObject getAppEngineFile(Project project) {
@@ -171,6 +200,11 @@ public class AppEnginePluginUtils {
     }
 
     public static Process runAntTarget(Project project, String target, Properties properties) {
+MyLOG.log("AppEnginePluginUtils.runAntTarget projDir=" + project.getProjectDirectory().getName());        
+        for ( Map.Entry e : properties.entrySet()) {
+            MyLOG.log("AppEnginePluginUtils.runAntTarget key=" + e.getKey() + "; val="+e.getValue());
+        }
+
         FileObject buildXML = project.getProjectDirectory().getFileObject("build.xml");
         //FileObject buildXML = null;
         if (buildXML != null) {
@@ -184,10 +218,11 @@ public class AppEnginePluginUtils {
                 builder = builder.addArgument("-f");
                 builder = builder.addArgument(buildXML.getPath());
                 builder = builder.addArgument(target);
-
+MyLOG.log("AppEnginePluginUtils.runAntTarget buildXML.getPath()="+buildXML.getPath()); 
                 // Add properties
                 for (Object key : properties.keySet()) {
                     builder = builder.addArgument("-D" + key + "=" + properties.getProperty((String) key));
+MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=" + properties.getProperty((String) key));                    
                 }
 
                 // Redirect error stream

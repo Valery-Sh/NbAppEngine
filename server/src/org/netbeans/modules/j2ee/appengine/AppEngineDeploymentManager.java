@@ -42,6 +42,9 @@ import org.netbeans.modules.j2ee.appengine.ide.AppEngineStartServer;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentContext;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentManager2;
+import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
@@ -72,14 +75,14 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         return uri;
     }
 
-/*    public AppEngineModule createModule() {
-        return new AppEngineModule(getTarget(),
-                getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_HOST),
-                Integer.valueOf(getProperties().getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER)),
-                "NULL_NULL_123987");
+    /*    public AppEngineModule createModule() {
+     return new AppEngineModule(getTarget(),
+     getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_HOST),
+     Integer.valueOf(getProperties().getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER)),
+     "NULL_NULL_123987");
 
-    }
-*/
+     }
+     */
     public AppEngineModule getModule() {
 //My        if (null == module) {
         String c = "null";
@@ -98,7 +101,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     public ProgressObject getProgress() {
         if (null == progress) {
-            progress = new AppEngineProgressObject(getModule(), false);
+            progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.NORMAL);
         }
 
         return progress;
@@ -171,6 +174,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         if (m == null) {
             return null;
         }
+        //this.ge
         return new TargetModuleID[]{m};
         //My RESTORE !!! return new TargetModuleID[]{getModule()};
     }
@@ -218,6 +222,21 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         String fn = file == null ? "NULL" : file.getName(); //My to delete
         MyLOG.log("AppEngineDeploymentManager.distribute aFILE=" + fn);
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
+        if (startServer.getMode() == AppEngineServerMode.DEBUG && !startServer.isRunning() ) {
+            return runServer(file);
+/*            runServer(file);
+            while ((!logger.contains("Dev App Server is now running"))
+                    && (!logger.contains("The server is running"))
+                    && !logger.contains("Address already in use")) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+*/
+        }
+
         if (!startServer.isRunning()) {
             return runServer(file);
         }
@@ -232,7 +251,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
                 Exceptions.printStackTrace(ex);
             }
         }
-        
+
         // Get start server object
         // Get progress object
         ProgressObject p = startServer.getCurrentProgressObject();
@@ -241,6 +260,9 @@ public class AppEngineDeploymentManager implements DeploymentManager {
             MyLOG.log("AppEngineDeploymentManager distribute NOT instanceof AppEngineDeployer");
             return p;
         }
+//Project pp = null;        
+//ActionProvider ap = pp.getLookup().lookup(ActionProvider.class);
+//ap.
         // Get checksums
 /* //My        String checksum = AppEnginePluginUtils.getMD5Checksum(file);
          String checksumToCompare = ((AppEngineDeployer) p).getWarChecksum();
@@ -268,10 +290,14 @@ public class AppEngineDeploymentManager implements DeploymentManager {
             startServer.stopDeploymentManager();
         }
 
-        MyLOG.log("AppEngineDeploymentManager.distribute startDeploymentManager before return");
+        
 
         this.selected = newSelected;
-
+        if (startServer.getMode() == AppEngineServerMode.DEBUG) {
+MyLOG.log("AppEngineDeploymentManager.distribute startServer.startDebugging(selected)");            
+            return startServer.startDebugging(selected);
+        }
+MyLOG.log("AppEngineDeploymentManager.distribute startDeploymentManager(selected) before return");
         return startServer.startDeploymentManager(selected);
     }
 
@@ -346,7 +372,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public ProgressObject start(TargetModuleID[] arg0) throws IllegalStateException {
-        MyLOG.log("AppEngineDeploymentManager.start moduleID="
+        MyLOG.log("AppEngineDeploymentManager.start(arg0) moduleID="
                 + arg0[0].getModuleID() + "; webURL" + arg0[0].getWebURL());
         return getProgress();
     }
@@ -365,7 +391,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public boolean isRedeploySupported() {
-        return true;
+        return false;
         //My return false;
     }
 
@@ -422,5 +448,16 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     @Override
     public void setDConfigBeanVersion(DConfigBeanVersionType arg0) throws DConfigBeanVersionUnsupportedException {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+//    @Override
+    public ProgressObject redeploy(TargetModuleID[] tmids, DeploymentContext deployment) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+//    @Override
+    public ProgressObject distribute(Target[] targets, DeploymentContext deployment) {
+        MyLOG.log("&&&&& AppEngineDeploymentManager2.distribute");
+        return null;
     }
 }

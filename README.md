@@ -1,4 +1,5 @@
-NbAppEngine
-===========
+NetBeans IDE plugin for Google App Engine (NbAppEngine)
+=======================================================
 
-NetBeans IDE plugin for Google App Engine 
+The clone from https://kenai.com/projects/nbappengine/pages/Home
+

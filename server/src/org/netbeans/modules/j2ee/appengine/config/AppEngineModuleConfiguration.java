@@ -22,12 +22,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Collection;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -53,8 +56,20 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     @Override
     public Lookup getLookup() {
         String m = module==null ? "NULL" : module.getUrl();
-MyLOG.log("AppEngineModuleConfiguration.getLookup module=" + m);                                
-        return Lookups.fixed(this);
+/*MyLOG.log("AppEngineModuleConfiguration.getLookup module=" + m); 
+        Lookup r = Lookups.fixed(this);
+        File f = new File("d:/VnsTestApps/WebDebug1");
+        
+        Collection c = r.lookupAll(Object.class);
+        int sz = c.size();
+MyLOG.log("AppEngineModuleConfiguration.getLookup SIZE()=" + sz);
+for ( Object o : c) {
+    MyLOG.log(" --- AppEngineModuleConfiguration.getLookup LLCLASS=" + o.getClass());
+}
+        
+        return r;
+        */
+        return Lookups.fixed(this);        
     }
 
     @Override
