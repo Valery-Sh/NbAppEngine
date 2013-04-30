@@ -66,6 +66,8 @@ public class AppEngineAntDeploymentProvider implements AntDeploymentProvider {
         } finally {
             is.close();
         }
+        
+        
     }
 
     @Override
@@ -73,7 +75,7 @@ public class AppEngineAntDeploymentProvider implements AntDeploymentProvider {
         return null;
     }
 
-    private String convertStreamToString(InputStream is) {
+    public static String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
         String line = null;

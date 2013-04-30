@@ -32,6 +32,8 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.netbeans.api.debugger.DebuggerManager;
+import org.netbeans.api.debugger.Session;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineDeployer;
@@ -47,6 +49,7 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentManager2;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.actions.SystemAction;
 
 /**
  * @author Michal Mocnak
@@ -101,6 +104,10 @@ MyLOG.log("AppEngineDeploymentManager.CONSTRUCTOR");
     }
 
     public ProgressObject getProgress() {
+        AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
+        if (startServer.getMode() == AppEngineServerMode.DEBUG && startServer.isRunning() ) {
+            progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.DEBUG);            
+        } else
         if (null == progress) {
             progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.NORMAL);
         }
@@ -208,7 +215,47 @@ MyLOG.log("AppEngineDeploymentManager.CONSTRUCTOR");
         return startServer.startDeploymentManager(selected);
 
     }
-
+    public void selectedChanging(Project newSelected) {
+MyLOG.log("%%% DeploymentManager.selectedChanging START selected == newSelected prj=" + newSelected);                    
+        if ( newSelected.equals(selected) ) {
+MyLOG.log("%%% DeploymentManager.selectedChanging selected == newSelected prj=" + newSelected);            
+            return;
+        }
+MyLOG.log("%%% DeploymentManager.selectedChanging GET START SERVER");                    
+        AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
+        if ( ! startServer.isRunning() ) {
+MyLOG.log("%%% DeploymentManager.selectedChanging startServer NOT running prj=" + newSelected);            
+            
+            return;
+        }
+        if ( startServer.getMode() != AppEngineServerMode.DEBUG) {
+MyLOG.log("%%% DeploymentManager.selectedChanging NOT DEBUG MODE prj=" + newSelected);            
+            
+            return;
+        }
+        // Need to stop server
+        //SystemAction.get(FinishDebuggerAction.class);
+/*MyLOG.log("%%% DeploymentManager befor call startServer.stopDeploymentManager prj=" + newSelected);                    
+        Session[] ss = DebuggerManager.getDebuggerManager().getSessions();
+        MyLOG.log("%%% DeploymentManager Debugger currentSession=" + DebuggerManager.getDebuggerManager().getCurrentSession());
+        for ( Session s : ss) {
+            s.kill();
+            MyLOG.log("%%% DeploymentManager Debugger Session=" + s.getName());
+        }
+        if (DebuggerManager.getDebuggerManager().getCurrentSession()!= null) {
+            DebuggerManager.getDebuggerManager().getCurrentSession().kill();//.finishAllSessions();
+        }
+        MyLOG.log("%%% DeploymentManager BEFORE CALL stopDeployment=");
+ */
+        //startServer.setMode(AppEngineServerMode.NORMAL);
+//        startServer.setStopping(true);
+        startServer.stopDebugging();
+        MyLOG.log("%%% DeploymentManager AFTER CALL stopDeployment=");
+        
+        //DebuggerManager.getDebuggerManager().getCurrentSession().kill();//.finishAllSessions();
+        
+        
+    }
     /**
      * 15.04.2013 the copy before NbAppEngine-15-04-2013.zip
      *
@@ -223,8 +270,11 @@ MyLOG.log("AppEngineDeploymentManager.CONSTRUCTOR");
         String fn = file == null ? "NULL" : file.getName(); //My to delete
         MyLOG.log("AppEngineDeploymentManager.distribute aFILE=" + fn);
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
-        if (startServer.getMode() == AppEngineServerMode.DEBUG && !startServer.isRunning() ) {
-            return runServer(file);
+        if (startServer.getMode() == AppEngineServerMode.DEBUG && startServer.isRunning() ) {
+        MyLOG.log("AppEngineDeploymentManager.distribute before return startServer.getCurrentProgressObject(); =" + startServer.getCurrentProgressObject().getClass());
+            return getProgress();
+            //return startServer.getCurrentProgressObject();            
+            //return runServer(file);
 /*            runServer(file);
             while ((!logger.contains("Dev App Server is now running"))
                     && (!logger.contains("The server is running"))
@@ -392,7 +442,7 @@ MyLOG.log("AppEngineDeploymentManager.distribute startDeploymentManager(selected
 
     @Override
     public boolean isRedeploySupported() {
-        return false;
+        return true;
         //My return false;
     }
 

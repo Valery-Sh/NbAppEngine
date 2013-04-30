@@ -18,8 +18,10 @@
 package org.netbeans.modules.j2ee.appengine.nodes;
 
 import java.awt.Component;
+import java.util.Collection;
 import javax.swing.Action;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizer;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizerDataSupport;
 import org.openide.nodes.AbstractNode;
@@ -42,7 +44,6 @@ public class AppEngineManagerNode extends AbstractNode {
 
         // Set default lookup
         this.lookup = lookup;
-
         // Set icon
         setIconBaseWithExtension(ICON_BASE);
     }
@@ -74,6 +75,12 @@ public class AppEngineManagerNode extends AbstractNode {
     }
 
     public AppEngineDeploymentManager getDeploymentManager() {
-        return lookup.lookup(AppEngineDeploymentManager.class);
+MyLOG.log("@@@@@@ AppEngineManagerNode getDeploymentManager");        
+Collection col = lookup.lookupAll(Object.class);
+for ( Object o : col) {
+    MyLOG.log("@@@@@@ AppEngineManagerNode lookup class=" + o.getClass());
+}
+        return null;
+        //return lookup.lookup(AppEngineDeploymentManager.class);
     }
 }

@@ -27,7 +27,7 @@
 
     <!-- Start Google App Engine Development Server -->
     <target name="runserver" depends="datanucleusenhance"
-      description="Starts the development server.">
+            description="Starts the development server.">
         <dev_appserver war="${build.web.dir}" port="${appengine.http.port}" >
             <options>
                 <arg line="${jvmargs}"/>
@@ -36,8 +36,8 @@
     </target>
 
     <!-- Start Google App Engine Development Server In Debug Mode -->
-    <target name="runserver-debug" depends="debug,datanucleusenhance"
-      description="Starts the development server.">
+    <target name="runserver-debug" depends="datanucleusenhance"
+            description="Starts the development server.">
         <dev_appserver war="${build.web.dir}" port="${appengine.http.port}" >
             <options>
                 <arg value="--jvm_flag=-Xdebug"/>
@@ -49,7 +49,7 @@
 
     <!-- Start Google App Engine Development Server In Profile Mode -->
     <target name="runserver-profile" depends="datanucleusenhance"
-      description="Starts the development server.">
+            description="Starts the development server.">
         <dev_appserver war="${build.web.dir}" port="${appengine.http.port}" >            
             <options>
                 <arg line="${jvmargs}"/>

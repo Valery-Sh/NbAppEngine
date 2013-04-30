@@ -1,26 +1,28 @@
 /**
- *  This file is part of Google App Engine suppport in NetBeans IDE.
+ * This file is part of Google App Engine suppport in NetBeans IDE.
  *
- *  Google App Engine suppport in NetBeans IDE is free software: you can
- *  redistribute it and/or modify it under the terms of the GNU General
- *  Public License as published by the Free Software Foundation, either
- *  version 2 of the License, or (at your option) any later version.
+ * Google App Engine suppport in NetBeans IDE is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
  *
- *  Google App Engine suppport in NetBeans IDE is distributed in the hope
- *  that it will be useful, but WITHOUT ANY WARRANTY; without even the
- *  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU General Public License for more details.
+ * Google App Engine suppport in NetBeans IDE is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Google App Engine suppport in NetBeans IDE.
- *  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * Google App Engine suppport in NetBeans IDE. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package org.netbeans.modules.j2ee.appengine.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,6 +34,7 @@ import org.apache.tools.ant.module.AntSettings;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.j2ee.appengine.MyLOG;
@@ -58,11 +61,11 @@ public class AppEnginePluginUtils {
     public static boolean isGoodAppEngineLocation(File candidate) {
         AppEngineDebug.log("org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils", "Check location for: " + candidate);
 
-        if (null == candidate ||
-                !candidate.exists() ||
-                !candidate.canRead() ||
-                !candidate.isDirectory() ||
-                !hasRequiredChildren(candidate, fileRequired)) {
+        if (null == candidate
+                || !candidate.exists()
+                || !candidate.canRead()
+                || !candidate.isDirectory()
+                || !hasRequiredChildren(candidate, fileRequired)) {
             return false;
         }
 
@@ -98,29 +101,81 @@ public class AppEnginePluginUtils {
 
         return true;
     }
+    public static boolean isAppEngineProject1(Project project) {
+        return getAppEngineFile(project) != null;
+    }
 
     public static boolean isAppEngineProject(Project project) {
+
+        if (project == null) {
+            MyLOG.log("^^^ isAppEngineProject=FALSE 0");
+            return false;
+        }
         
-        if ( project == null ) {
-MyLOG.log("^^^ isAppEngineProject=FALSE 0");                    
+        Properties ep = new Properties();
+        FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+        //FileUtil.
+        if ( fo == null ) {
+            MyLOG.log("^^^ isAppEngineProject=FALSE 1");
+            return false;
+        }
+        try {
+            //ep.load(fo.getInputStream());
+            ep.load(new FileInputStream(fo.getPath()));
+MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop="+AntProjectHelper.PRIVATE_PROPERTIES_PATH);            
+            String p = ep.getProperty("j2ee.server.instance");
+   MyLOG.log("^^^ isAppEngineProject p = " + p);
+            
+            boolean r = false;
+            if (p != null && p.startsWith("deployer:appengine:")) {
+                MyLOG.log("^^^ isAppEngineProject=TRUE");
+  //              fo.getInputStream().close();
+                r = true;
+            }
+            if ( ! r ) {
+//                fo.getInputStream().close();
+            }
+   MyLOG.log("^^^ isAppEngineProject result=" + r);
+            
+            return r;
+        } catch (IOException ioe) {
+   MyLOG.log("^^^ isAppEngineProject IOException " + ioe);
+            
+            return false;
+        }
+    }
+
+    public static boolean getBuildProperties(Project project) {
+
+        if (project == null) {
+            MyLOG.log("^^^ isAppEngineProject=FALSE 0");
             return false;
         }
         EditableProperties ep = new EditableProperties(false);
         FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+        if (fo == null) {
+            return false;
+        }
         try {
             ep.load(fo.getInputStream());
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             return false;
         }
         String p = ep.getProperty("j2ee.server.instance");
-        if ( p != null && p.startsWith("deployer:appengine:")) {
-MyLOG.log("^^^ isAppEngineProject=TRUE");
+        if (p != null && p.startsWith("deployer:appengine:")) {
+            MyLOG.log("^^^ isAppEngineProject=TRUE");
             return true;
         }
-MyLOG.log("^^^ isAppEngineProject=FALSE 1");        
+        MyLOG.log("^^^ isAppEngineProject=FALSE 1");
         return false;
     }
-    
+
+    public static Project getProject(File file) {
+        
+        return FileOwnerQuery.getOwner(FileUtil.toFileObject(file));
+        //return getAppEngineFile(project) != null;
+    }
+
     public static boolean isAppEngineProject(File file) {
         return isAppEngineProject(FileOwnerQuery.getOwner(FileUtil.toFileObject(file)));
         //return getAppEngineFile(project) != null;
@@ -200,15 +255,15 @@ MyLOG.log("^^^ isAppEngineProject=FALSE 1");
     }
 
     public static Process runAntTarget(Project project, String target, Properties properties) {
-MyLOG.log("AppEnginePluginUtils.runAntTarget projDir=" + project.getProjectDirectory().getName());        
-        for ( Map.Entry e : properties.entrySet()) {
-            MyLOG.log("AppEnginePluginUtils.runAntTarget key=" + e.getKey() + "; val="+e.getValue());
+        MyLOG.log("AppEnginePluginUtils.runAntTarget projDir=" + project.getProjectDirectory().getName());
+        for (Map.Entry e : properties.entrySet()) {
+            MyLOG.log("AppEnginePluginUtils.runAntTarget key=" + e.getKey() + "; val=" + e.getValue());
         }
 
         FileObject buildXML = project.getProjectDirectory().getFileObject("build.xml");
         //FileObject buildXML = null;
         if (buildXML != null) {
-        //if ( true )
+            //if ( true )
             try {
                 // Create process builder
                 String ant = Utilities.isWindows() ? "ant.bat" : "ant";
@@ -218,11 +273,11 @@ MyLOG.log("AppEnginePluginUtils.runAntTarget projDir=" + project.getProjectDirec
                 builder = builder.addArgument("-f");
                 builder = builder.addArgument(buildXML.getPath());
                 builder = builder.addArgument(target);
-MyLOG.log("AppEnginePluginUtils.runAntTarget buildXML.getPath()="+buildXML.getPath()); 
+                MyLOG.log("AppEnginePluginUtils.runAntTarget buildXML.getPath()=" + buildXML.getPath());
                 // Add properties
                 for (Object key : properties.keySet()) {
                     builder = builder.addArgument("-D" + key + "=" + properties.getProperty((String) key));
-MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=" + properties.getProperty((String) key));                    
+                    MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=" + properties.getProperty((String) key));
                 }
 
                 // Redirect error stream
@@ -230,7 +285,7 @@ MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=
 
                 // Perform action
                 return builder.call();
-                
+
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IllegalArgumentException ex) {
@@ -260,4 +315,27 @@ MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=
 
         return complete.digest();
     }
+    
+    public static String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sb.toString();
+    }
+    
 }

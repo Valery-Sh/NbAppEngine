@@ -49,13 +49,13 @@ public class AppEngineJ2eePlatformImpl extends J2eePlatformImpl {
 
     @Override
     public LibraryImplementation[] getLibraries() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getLibraries");                
+//MyLOG.log("AppEngineJ2eePlatformImpl.getLibraries");                
         return libraries.clone();
     }
 
     @Override
     public String getDisplayName() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getDisplayName");                        
+//MyLOG.log("AppEngineJ2eePlatformImpl.getDisplayName");                        
         return NbBundle.getBundle("org.netbeans.modules.j2ee.appengine.resources.Bundle").getString("appengine.platform.name");
     }
 
@@ -66,19 +66,19 @@ MyLOG.log("AppEngineJ2eePlatformImpl.getDisplayName");
 
     @Override
     public File[] getPlatformRoots() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getPlatformRoots");                                
+//MyLOG.log("AppEngineJ2eePlatformImpl.getPlatformRoots");                                
         return null;
     }
 
     @Override
     public File[] getToolClasspathEntries(String arg0) {
-MyLOG.log("AppEngineJ2eePlatformImpl.getToolClasspathEntries");                                        
+//MyLOG.log("AppEngineJ2eePlatformImpl.getToolClasspathEntries");                                        
         return new File[] {};
     }
 
     @Override
     public boolean isToolSupported(String arg0) {
-MyLOG.log("AppEngineJ2eePlatformImpl.isToolSupported");        
+//MyLOG.log("AppEngineJ2eePlatformImpl.isToolSupported");        
         if(arg0.equals("org.datanucleus.store.appengine.jpa.DatastorePersistenceProvider")) { // NOI18N
             return true;
         } else if(arg0.equals("dataNucleusPersistenceProviderIsDefault")) { // NOI18N
@@ -89,7 +89,7 @@ MyLOG.log("AppEngineJ2eePlatformImpl.isToolSupported");
 
     @Override
     public Set getSupportedSpecVersions() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedSpecVersions");        
+//MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedSpecVersions");        
         Set <String> result = new HashSet<String>();
         //result.add(J2eeModule.JAVA_EE_5);
         result.add("1.5");
@@ -98,7 +98,7 @@ MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedSpecVersions");
 
     @Override
     public Set getSupportedModuleTypes() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedModuleTypes");                
+//MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedModuleTypes");                
         Set<Object> result = new HashSet<Object>();
         result.add(J2eeModule.Type.WAR);
         return result;
@@ -106,18 +106,18 @@ MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedModuleTypes");
 
     @Override
     public Set getSupportedJavaPlatformVersions() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedJavaPlatformVersions");         
+//MyLOG.log("AppEngineJ2eePlatformImpl.getSupportedJavaPlatformVersions");         
         return null;
     }
 
     @Override
     public JavaPlatform getJavaPlatform() {
-MyLOG.log("AppEngineJ2eePlatformImpl.getJavaPlatform");                 
+//MyLOG.log("AppEngineJ2eePlatformImpl.getJavaPlatform");                 
         return null;
     }
 
     public void notifyLibrariesChanged() {
-MyLOG.log("AppEngineJ2eePlatformImpl.notifyLibrariesChanged");                         
+//MyLOG.log("AppEngineJ2eePlatformImpl.notifyLibrariesChanged");                         
         // Reload libraries
         loadLibraries();
         // Fire changes
@@ -125,7 +125,7 @@ MyLOG.log("AppEngineJ2eePlatformImpl.notifyLibrariesChanged");
     }
 
     private void loadLibraries() {
-MyLOG.log("AppEngineJ2eePlatformImpl.loadLibraries");                                 
+//MyLOG.log("AppEngineJ2eePlatformImpl.loadLibraries");                                 
         // Create library
         LibraryImplementation library = new J2eeLibraryTypeProvider().createLibrary();
         // Set name

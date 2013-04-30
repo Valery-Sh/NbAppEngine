@@ -17,13 +17,8 @@
  */
 package org.netbeans.modules.j2ee.appengine.nodes;
 
-import java.beans.PropertyChangeEvent;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.NodeEvent;
-import org.openide.nodes.NodeListener;
-import org.openide.nodes.NodeMemberEvent;
-import org.openide.nodes.NodeReorderEvent;
 
 /**
  * @author Michal Mocnak

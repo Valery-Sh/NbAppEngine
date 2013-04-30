@@ -39,9 +39,7 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.netbeans.api.debugger.DebuggerInfo;
-import org.netbeans.api.debugger.DebuggerManager;
-import org.netbeans.api.debugger.jpda.AttachingDICookie;
+import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.extexecution.input.InputReaderTask;
 import org.netbeans.api.extexecution.input.InputReaders;
 import org.netbeans.api.extexecution.startup.StartupExtender;
@@ -91,6 +89,7 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
         this.project = project;
         this.mode = mode;
         this.logger = AppEngineLogger.getInstance(manager.getUri());
+        
 
 //org.netbeans.modules.j2ee.deployment.impl.ServerInstance si;        
 // Start deployer
@@ -158,15 +157,15 @@ for ( Object o : c) {
         // Execute
         StartupExtender.StartMode startMode;
         String target;
-        if (mode.equals(AppEngineServerMode.NORMAL)) {
+        if (mode == AppEngineServerMode.NORMAL) {
             MyLOG.log("######## runserver-normal");
             target = "runserver";
             startMode = StartupExtender.StartMode.NORMAL;
-        } else if (mode.equals(AppEngineServerMode.DEBUG)) {
+        } else if (mode == AppEngineServerMode.DEBUG ) {
             MyLOG.log("######## runserver-debug");
             target = "runserver-debug";
             startMode = StartupExtender.StartMode.DEBUG;
-        } else if (mode.equals(AppEngineServerMode.PROFILE)) {
+        } else if (mode == AppEngineServerMode.PROFILE) {
             target = "runserver-profile";
             startMode = StartupExtender.StartMode.PROFILE;
         } else {
@@ -269,8 +268,6 @@ for ( Object o : c) {
         // Server successfully started
         MyLOG.log("AppEngineDeployer.run() fireStartProgressEvent(StateType.COMPLETED)");
         //???? manager.setSelected(null);
-        AppEngineStartServer startServer = AppEngineStartServer.getInstance(manager);
-        startServer.setReallyRunning(true);
         fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STARTED"));
 /*        DebuggerInfo di = DebuggerInfo.create(
                 "My Attaching First Debugger Info",
@@ -300,11 +297,13 @@ for ( Object o : c) {
 
     @Override
     public DeploymentStatus getDeploymentStatus() {
+MyLOG.log("AppEngineDeployer.run() getDeploymentStatus = " + status + "; moduleID=" +manager.getModule().getModuleID());        
         return status;
     }
 
     @Override
     public TargetModuleID[] getResultTargetModuleIDs() {
+MyLOG.log("AppEngineDeployer.run() getResultTargetModuleIDs = " + manager.getModule().getModuleID());
         return new TargetModuleID[]{manager.getModule()};
     }
 

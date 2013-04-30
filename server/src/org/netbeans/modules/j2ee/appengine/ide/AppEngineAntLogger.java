@@ -18,7 +18,7 @@ import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;
 
-@ServiceProvider(service = AntLogger.class, position = 10)
+@ServiceProvider(service = AntLogger.class, position = 100)
 public class AppEngineAntLogger extends AntLogger {
 
     /**
@@ -27,39 +27,34 @@ public class AppEngineAntLogger extends AntLogger {
     public AppEngineAntLogger() {
         MyLOG.log("%%% CREATE ANT LOGGER");
     }
-    
-    protected boolean isAppEngineProject(File file) {
-        return AppEnginePluginUtils.isAppEngineProject(file);
-        //return true;
-    }
-    
+
     @Override
     public boolean interestedInScript(File script, AntSession session) {
         return true;
-/*        if (!script.getName().equals("build-impl.xml")) {
-            MyLOG.log("%%% AntLogger.interestedInScript=FALSE 0 " + script.getPath());
-            return false;
-        }
-        File parent = script.getParentFile();
-        if (parent != null && parent.getName().equals("nbproject")) { // NOI18N
-            File parent2 = parent.getParentFile();
-            if (parent2 != null) {
-                return isAppEngineProject(parent2);
-            }
-        }
-        return false;
-        */ 
+        /*        if (!script.getName().equals("build-impl.xml")) {
+         MyLOG.log("%%% AntLogger.interestedInScript=FALSE 0 " + script.getPath());
+         return false;
+         }
+         File parent = script.getParentFile();
+         if (parent != null && parent.getName().equals("nbproject")) { // NOI18N
+         File parent2 = parent.getParentFile();
+         if (parent2 != null) {
+         return isAppEngineProject(parent2);
+         }
+         }
+         return false;
+         */
     }
-    
+
     @Override
     public boolean interestedInSession(AntSession session) {
         return true;
     }
-    
+
     @Override
     public String[] interestedInTargets(AntSession session) {
         //this.targetStarted(null);
-        return AntLogger.NO_TASKS;
+        return AntLogger.NO_TARGETS;
     }
 
     @Override
@@ -67,26 +62,41 @@ public class AppEngineAntLogger extends AntLogger {
         //this.targetStarted(null);
         return AntLogger.NO_TASKS;
     }
-    
+
+    @Override
+    public void targetStarted(AntEvent event) {
+        if (true) {
+            return;
+        }
+        File buildXml = event.getScriptLocation();
+        MyLOG.log("%%% targetStarted target=" + event.getTargetName()
+                + "; buildXml= " + buildXml.getPath());
+    }
+
     @Override
     public void taskStarted(AntEvent event) {
-        
+
         File buildXml = event.getScriptLocation();
         MyLOG.log("%%% taskStarted buildXml=" + buildXml.getPath()
                 + "; target=" + event.getTargetName() + "; task=" + event.getTaskName());
     }
-    
+
     @Override
     public void buildStarted(AntEvent event) {
 
+/*for (String nm : event.getPropertyNames()) {
+        MyLOG.log("!!! %%% buildStarted pname==" + nm);
+}
+*/ 
         File buildXml = event.getScriptLocation();
-        MyLOG.log("%%% buildStarted buildXml=" + buildXml.getPath() + "; name=" + buildXml.getName());                
-        if ( ! "build.xml".equals(buildXml.getName())) {
-        MyLOG.log("%%% buildStarted RETURN is NOT build.xml ");                
-            
+        MyLOG.log("%%% buildStarted buildXml=" + buildXml.getPath() + "; name=" + buildXml.getName());
+        if (!"build.xml".equals(buildXml.getName())) {
+            MyLOG.log("%%% buildStarted RETURN is NOT build.xml ");                
+
             return;
         }
-        if ( ! isAppEngineProject(buildXml)) {
+        if (!AppEnginePluginUtils.isAppEngineProject(buildXml)) {
+            MyLOG.log("%%% buildStarted IS NOT AppEngine");
             return;
         }
         Project p = FileOwnerQuery.getOwner(FileUtil.toFileObject(buildXml));
@@ -94,16 +104,22 @@ public class AppEngineAntLogger extends AntLogger {
             AppEngineDeploymentManager dm = (AppEngineDeploymentManager) AppEngineDeploymentFactory.getInstance().getDeploymentManager("deployer:appengine:localhost:8181/-1198750328", null, null);
             Project dp = dm.getSelected();
 MyLOG.log("%%% buildStarted  dm.prj=" + dp);            
-            if ( ! p.equals(dp) ) {
-MyLOG.log("%%% buildStarted  (! p.equals(dp)) == TRUE; prj=" + p);
-                
+            if (!p.equals(dp)) {
+MyLOG.log("%%% buildStarted  call selectedChanging prj=" + p);
+                dm.selectedChanging(p);
+                try {
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                }
+
+MyLOG.log("%%% buildStarted  AFTER call selectedChanging prj=" + p);                
                 dm.setSelected(p);
             }
         } catch (DeploymentManagerCreationException dmce) {
-        MyLOG.log("%%% buildStarted EXCEPTION");
-            
-        }        
-        MyLOG.log("%%% buildStarted buildXml=" + buildXml.getPath()
-                + "; target=" + event.getTargetName() + "; task=" + event.getTaskName());
+            MyLOG.log("%%% buildStarted EXCEPTION");
+
+        }
+        //      MyLOG.log("%%% buildStarted buildXml=" + buildXml.getPath()
+//                + "; target=" + event.getTargetName() + "; task=" + event.getTaskName());
     }
 }
