@@ -5,6 +5,8 @@
     <property name="appengine.location" value="#appengine.location"/>
     <property name="appengine.http.port" value="#appengine.http.port"/>
     <property name="appengine.debug.port" value="#appengine.debug.port"/>
+    <property name="appengine.manager.uri" value="#appengine.manager.uri"/>
+    
     <property name="deploy.ant.enabled" value="false"/>
     <property name="jvmargs" value=""/>
 

@@ -80,9 +80,9 @@ public class AppEngineStartServer extends StartServer {
     @Override
     public boolean needsRestart(Target target) {
 
-MyLOG.log("#### StartServer needsRestart");
+MyLOG.log("#### StartServer needsRestart manager.needsRestart="+manager.needsRestart );
 //WebProject sss;
-        return false;
+        return manager.needsRestart;
     }
 
     public ProgressObject getCurrentProgressObject() {
@@ -165,6 +165,7 @@ MyLOG.log("AppEngineStartServer.startDeploymentManager() : URL=" + u);
 
     @Override
     public ProgressObject startDebugging(Target target) {
+        manager.needsRestart = false;
         MyLOG.log("AppEngineStartServer.startDebugging(target) prj=" + manager.getSelected());
         /*        current = new AppEngineProgressObject(null, false, AppEngineServerMode.DEBUG);  
          mode = AppEngineServerMode.DEBUG;
@@ -359,6 +360,10 @@ private boolean stopping;
     @Override
     public ServerDebugInfo getDebugInfo(Target target) {
         MyLOG.log("** -- ** StartServer.getDebugInfo");
+/*        if (isDebuggable(target) ) {
+            return null;
+        }
+        */ 
         return new ServerDebugInfo(
                 manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_HOST),
                 Integer.parseInt(manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER)));

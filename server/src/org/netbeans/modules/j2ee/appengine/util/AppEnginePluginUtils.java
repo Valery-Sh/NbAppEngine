@@ -74,6 +74,31 @@ public class AppEnginePluginUtils {
         return true;
     }
 
+    public static String getProperty(Project project,String key) {
+        String s = null;
+        Properties props = getProperties(project);
+        s = props.getProperty("antsrc.cp");
+        return s;
+    }
+
+    public static Properties getProperties(Project project) {
+        Properties props = new Properties();
+        MyLOG.log("^^^ isAppEngineProject.getPropertie path="+AntProjectHelper.PROJECT_PROPERTIES_PATH);
+        
+        FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PROJECT_PROPERTIES_PATH);
+        
+        if (fo == null) {
+            MyLOG.log("^^^ isAppEngineProject.getProperties=FALSE 1");
+            return props;
+        }
+        try {
+            props.load(new FileInputStream(fo.getPath()));
+        } catch (IOException ioe) {
+            MyLOG.log("^^^ isAppEngineProject IOException " + ioe);
+        }
+        return props;
+    }
+
     private static boolean hasRequiredChildren(File candidate, Collection<String> requiredChildren) {
         if (null == candidate) {
             return false;
@@ -101,6 +126,7 @@ public class AppEnginePluginUtils {
 
         return true;
     }
+
     public static boolean isAppEngineProject1(Project project) {
         return getAppEngineFile(project) != null;
     }
@@ -111,36 +137,36 @@ public class AppEnginePluginUtils {
             MyLOG.log("^^^ isAppEngineProject=FALSE 0");
             return false;
         }
-        
+
         Properties ep = new Properties();
         FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PRIVATE_PROPERTIES_PATH);
         //FileUtil.
-        if ( fo == null ) {
+        if (fo == null) {
             MyLOG.log("^^^ isAppEngineProject=FALSE 1");
             return false;
         }
         try {
             //ep.load(fo.getInputStream());
             ep.load(new FileInputStream(fo.getPath()));
-MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop="+AntProjectHelper.PRIVATE_PROPERTIES_PATH);            
+            MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop=" + AntProjectHelper.PRIVATE_PROPERTIES_PATH);
             String p = ep.getProperty("j2ee.server.instance");
-   MyLOG.log("^^^ isAppEngineProject p = " + p);
-            
+            MyLOG.log("^^^ isAppEngineProject p = " + p);
+
             boolean r = false;
             if (p != null && p.startsWith("deployer:appengine:")) {
                 MyLOG.log("^^^ isAppEngineProject=TRUE");
-  //              fo.getInputStream().close();
+                //              fo.getInputStream().close();
                 r = true;
             }
-            if ( ! r ) {
+            if (!r) {
 //                fo.getInputStream().close();
             }
-   MyLOG.log("^^^ isAppEngineProject result=" + r);
-            
+            MyLOG.log("^^^ isAppEngineProject result=" + r);
+
             return r;
         } catch (IOException ioe) {
-   MyLOG.log("^^^ isAppEngineProject IOException " + ioe);
-            
+            MyLOG.log("^^^ isAppEngineProject IOException " + ioe);
+
             return false;
         }
     }
@@ -171,7 +197,7 @@ MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop="+AntProje
     }
 
     public static Project getProject(File file) {
-        
+
         return FileOwnerQuery.getOwner(FileUtil.toFileObject(file));
         //return getAppEngineFile(project) != null;
     }
@@ -315,7 +341,7 @@ MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop="+AntProje
 
         return complete.digest();
     }
-    
+
     public static String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
@@ -337,5 +363,4 @@ MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop="+AntProje
 
         return sb.toString();
     }
-    
 }

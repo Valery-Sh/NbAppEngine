@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-*** GENERATED FROM project.xml - DO NOT EDIT  ***
+*** GENERATED 2 FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
 -->
 <project name="org.netbeans.modules.j2ee.appengine.editor-impl" basedir="..">

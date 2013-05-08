@@ -9,6 +9,8 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
+import org.myant.AppEngineHelper;
+import org.myant.AppEngineInfo;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentFactory;
@@ -16,6 +18,7 @@ import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
 import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = AntLogger.class, position = 100)
@@ -48,6 +51,7 @@ public class AppEngineAntLogger extends AntLogger {
 
     @Override
     public boolean interestedInSession(AntSession session) {
+        
         return true;
     }
 
@@ -88,6 +92,7 @@ public class AppEngineAntLogger extends AntLogger {
         MyLOG.log("!!! %%% buildStarted pname==" + nm);
 }
 */ 
+        //event.getSession().
         File buildXml = event.getScriptLocation();
         MyLOG.log("%%% buildStarted buildXml=" + buildXml.getPath() + "; name=" + buildXml.getName());
         if (!"build.xml".equals(buildXml.getName())) {
@@ -100,21 +105,38 @@ public class AppEngineAntLogger extends AntLogger {
             return;
         }
         Project p = FileOwnerQuery.getOwner(FileUtil.toFileObject(buildXml));
+        MyLOG.log("%%% buildStarted antsrc.cp=" + AppEnginePluginUtils.getProperty(p, "antsrc.cp"));
+        MyLOG.log("%%% buildStarted antsrc.cp=" + AppEnginePluginUtils.getProperty(p, "antsrc.cp"));
+        for ( String s :event.getPropertyNames() ) {
+            MyLOG.log("%%% buildStarted prop key=" + s + "; val=" + event.getProperty(s));
+        }
         try {
             AppEngineDeploymentManager dm = (AppEngineDeploymentManager) AppEngineDeploymentFactory.getInstance().getDeploymentManager("deployer:appengine:localhost:8181/-1198750328", null, null);
             Project dp = dm.getSelected();
 MyLOG.log("%%% buildStarted  dm.prj=" + dp);            
+            AppEngineInfo inst = Lookup.getDefault().lookup(AppEngineInfo.class);
             if (!p.equals(dp)) {
 MyLOG.log("%%% buildStarted  call selectedChanging prj=" + p);
-                dm.selectedChanging(p);
+                
+            //AppEngineHelper.getInstance().setSameProject(false);
+            
+            //boolean same = AppEngineHelper.getInstance().isSameProject();
+            inst.setSameProject(false);
+                
+/*                dm.selectedChanging(p);
                 try {
                     Thread.sleep(500);
                 } catch (Exception e) {
                 }
-
+*/
 MyLOG.log("%%% buildStarted  AFTER call selectedChanging prj=" + p);                
                 dm.setSelected(p);
+            } else {
+                //AppEngineHelper.getInstance().setSameProject(true);
+                inst.setSameProject(true);
             }
+MyLOG.log("%%% buildStarted  isSameProject=" + inst.isSameProject());                
+            
         } catch (DeploymentManagerCreationException dmce) {
             MyLOG.log("%%% buildStarted EXCEPTION");
 

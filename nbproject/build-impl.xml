@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-*** GENERATED FROM project.xml - DO NOT EDIT  ***
+*** GENERATED1 FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
 -->
 <project name="Google App Engine Support-impl" basedir=".." xmlns:sproject="http://www.netbeans.org/ns/nb-module-suite-project/1">

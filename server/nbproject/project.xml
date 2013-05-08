@@ -21,7 +21,15 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.8.0.103</specification-version>
+                        <specification-version>1.24.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.me</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -43,6 +51,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.api.java.classpath</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.36.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.api.progress</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -57,15 +74,6 @@
                     <compile-dependency/>
                     <run-dependency>
                         <specification-version>1.31.1</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.api.xml</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>1.33.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -153,15 +161,6 @@
                     <run-dependency>
                         <release-version>0-1</release-version>
                         <specification-version>1.16.1</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.modules.xml.multiview</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -269,13 +268,22 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
-            <extra-compilation-unit>
+            <public-packages>
+                <package>org.netbeans.modules.j2ee.appengine</package>
+                <package>org.netbeans.modules.j2ee.appengine.config</package>
+                <package>org.netbeans.modules.j2ee.appengine.customizer</package>
+                <package>org.netbeans.modules.j2ee.appengine.ide</package>
+                <package>org.netbeans.modules.j2ee.appengine.nodes</package>
+                <package>org.netbeans.modules.j2ee.appengine.ui</package>
+                <package>org.netbeans.modules.j2ee.appengine.util</package>
+                <package>org.netbeans.modules.j2ee.appengine.wizards</package>
+            </public-packages>
+            <!--extra-compilation-unit>
                 <package-root>antsrc</package-root>
                 <classpath>${module.classpath}:${ant.jar}:${tools.jar}:../j2eeapis/external/jsr88javax.jar</classpath>
                 <built-to>build/antclasses</built-to>
                 <built-to>${cluster}/ant/nblib/mmm.jar</built-to>
-            </extra-compilation-unit>
+            </extra-compilation-unit-->
         </data>
     </configuration>
 </project>

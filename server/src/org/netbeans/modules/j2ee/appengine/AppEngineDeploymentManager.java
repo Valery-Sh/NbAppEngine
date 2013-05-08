@@ -32,8 +32,6 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.netbeans.api.debugger.DebuggerManager;
-import org.netbeans.api.debugger.Session;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineDeployer;
@@ -42,14 +40,10 @@ import org.netbeans.modules.j2ee.appengine.ide.AppEngineLogger;
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineServerMode;
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineStartServer;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
-import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentContext;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentManager2;
-import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
-import org.openide.util.actions.SystemAction;
 
 /**
  * @author Michal Mocnak
@@ -66,6 +60,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     private Process process;
     private ExecutorService executor;
     private Project selected;
+    
 
     public AppEngineDeploymentManager(String uri) {
 MyLOG.log("AppEngineDeploymentManager.CONSTRUCTOR");        
@@ -135,8 +130,10 @@ MyLOG.log("AppEngineDeploymentManager.CONSTRUCTOR");
 
         return selected;
     }
-
+    public boolean needsRestart;
     public void setSelected(Project selected) {
+        needsRestart = true;
+MyLOG.log("AppEngineDeploymentManager.setSelected");
         this.selected = selected;
     }
 

@@ -18,6 +18,21 @@
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+    <!--folder name="Services">
+        <folder name="Hidden">
+            <file name="org-netbeans-modules-j2ee-appengine-anttasks.instance">
+                <attr name="instanceCreate" methodvalue=
+                  "org.apache.tools.ant.module.spi.AutomaticExtraClasspath.url"
+                />
+                <attr name="url"
+                urlvalue=
+    "nbinst://org.netbeans.module.j2ee.appengine.anttask/modules/ext/AppEngineCustonAntTask.jar"/>
+                <attr name="instanceOf" stringvalue=
+             "org.apache.tools.ant.module.spi.AutomaticExtraClasspathProvider"
+                />
+            </file>
+        </folder>
+    </folder-->        
     <folder name="J2EE">
         <folder name="DeploymentPlugins">
             <folder name="AppEngine">
