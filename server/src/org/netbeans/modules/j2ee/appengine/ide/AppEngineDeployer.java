@@ -17,12 +17,10 @@
  */
 package org.netbeans.modules.j2ee.appengine.ide;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentStatus;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -43,25 +41,21 @@ import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.extexecution.input.InputReaderTask;
 import org.netbeans.api.extexecution.input.InputReaders;
 import org.netbeans.api.extexecution.startup.StartupExtender;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.server.ServerInstance;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
 import org.netbeans.modules.j2ee.appengine.MyLOG;
+import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.netbeans.modules.j2ee.deployment.plugins.api.CommonServerBridge;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-import org.netbeans.spi.project.ActionProgress;
-import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -84,12 +78,13 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
     private AppEngineDeployer(AppEngineDeploymentManager manager, AppEngineServerMode mode, Project project) {
         this.manager = manager;
+        
         this.properties = manager.getProperties().getInstanceProperties();
         this.name = properties.getProperty(InstanceProperties.DISPLAY_NAME_ATTR);
         this.project = project;
         this.mode = mode;
         this.logger = AppEngineLogger.getInstance(manager.getUri());
-        
+
 
 //org.netbeans.modules.j2ee.deployment.impl.ServerInstance si;        
 // Start deployer
@@ -116,27 +111,9 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
     @Override
     public void run() {
-        //CommonProjectActions pa;
-        //CommonProjectActions.
-//        Logger.getLogger(getClass().getName()).log(Level.WARNING, "RUN STARTLOG{0}--------------------------------");
         // Get executor
         ExecutorService executor = manager.getExecutor();
-        MyLOG.log("AppEngineDeployer.run() executor=" + (executor == null ? null : " NOT NULL"));
-        
-
-Lookup.Result<CommonProjectActions> lookupResults = Utilities.actionsGlobalContext().lookupResult(CommonProjectActions.class);
-//Collection<? extends CommonProjectActions> actions = lookupResults.allInstances();
-//int sz = actions.size();
-        File f = new File("d:/VnsTestApps/WebDebug1");
-        Project prj = FileOwnerQuery.getOwner(FileUtil.toFileObject(f));
-        Collection c = prj.getLookup().lookupAll(ActionProgress.class);
-        int sz = c.size();
-MyLOG.log("AppEngineDeployer.run SIZE()=" + sz);
-for ( Object o : c) {
-    MyLOG.log(" --- AppEngineDeployer.run ActionProgress.CLASS=" + o.getClass());
-}
-
- // If not null shutdown
+        // If not null shutdown
         if (null != executor) {
             executor.shutdownNow();
         }
@@ -161,7 +138,7 @@ for ( Object o : c) {
             MyLOG.log("######## runserver-normal");
             target = "runserver";
             startMode = StartupExtender.StartMode.NORMAL;
-        } else if (mode == AppEngineServerMode.DEBUG ) {
+        } else if (mode == AppEngineServerMode.DEBUG) {
             MyLOG.log("######## runserver-debug");
             target = "runserver-debug";
             startMode = StartupExtender.StartMode.DEBUG;
@@ -177,34 +154,20 @@ for ( Object o : c) {
         }
 
         ServerInstance instance = CommonServerBridge.getCommonInstance(manager.getUri());
-
-        StringBuilder jvmargs = new StringBuilder();
-//        org.apache.tools.ant.Task ttt;        
-//org.netbeans.modules.j2ee.ant.StartServer ss;
-//        DebuggerInfo di = DebuggerInfo.create("dddd", new Object[]{
-//        "localhost",8765});
         
-//DebuggerManager.getDebuggerManager().startDebugging(di);
-
-//        Logger.getLogger(getClass().getName()).log(Level.WARNING, "STARTLOG{0}--------------------------------");
-//        LOG.log(Level.FINER, "STARTLOG{0}", "--------------------------------");
+        StringBuilder jvmargs = new StringBuilder();
         List<StartupExtender> l = StartupExtender.getExtenders(Lookups.singleton(instance), startMode);
-//        Logger.getLogger(getClass().getName()).log(Level.WARNING, "StandartExtenders.size=" + l.size());
         for (StartupExtender args : StartupExtender.getExtenders(Lookups.singleton(instance), startMode)) {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "args.length=" + args.getArguments().size());
 
             for (String arg : args.getArguments()) {
                 jvmargs.append(" --jvm_flag=").append(arg);
-//                LOG.log(Level.FINER, "--jvm_flag={0}", arg);
-//                Logger.getLogger(getClass().getName()).log(Level.WARNING, "--jvm_flag={0}" + arg);
             }
         }
-//        LOG.log(Level.FINER, "ENDLOG{0}", "--------------------------------");
-//        Logger.getLogger(getClass().getName()).log(Level.WARNING, "ENDLOG{0}--------------------------------");
         if (jvmargs.toString().trim().length() != 0) {
             props.setProperty("jvmargs", jvmargs.toString());
         }
-        
+
         // Executor task object
         Process serverProcess = AppEnginePluginUtils.runAntTarget(project, target, props);
 
@@ -234,7 +197,7 @@ for ( Object o : c) {
 
         // Store process
         manager.setProcess(serverProcess);
-        MyLOG.log("AppEngineDeployer.run() fireStartProgressEvent(StateType.RUNNING)");
+        MyLOG.log("AppEngineDeployer.run() RUNNING fireStartProgressEvent(StateType.RUNNING)");
         // Fire changes
         fireStartProgressEvent(StateType.RUNNING, createProgressMessage("MSG_START_SERVER_IN_PROGRESS"));
 
@@ -263,21 +226,38 @@ for ( Object o : c) {
         //
         //AppEngineSelectedProject selectedService = Lookup.getDefault().lookup(AppEngineSelectedProject.class);
         //selectedService.setDeployedProjectDirectory(selectedService.getProjectDirectory());
+        MyLOG.log("AppEngineDeployer.run() COMPLETED fireStartProgressEvent(StateType.COMPLETED)");
 
-
-        // Server successfully started
-        MyLOG.log("AppEngineDeployer.run() fireStartProgressEvent(StateType.COMPLETED)");
-        //???? manager.setSelected(null);
         fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STARTED"));
-/*        DebuggerInfo di = DebuggerInfo.create(
-                "My Attaching First Debugger Info",
-                new Object[]{
-            AttachingDICookie.create(
-            "localhost",
-            8765)
-        });
-        DebuggerManager.getDebuggerManager().startDebugging(di);
-*/
+
+        if ("runserver-debug".equals(target) && manager.isDebuggedSet()) {
+            FileObject fo = manager.getSelected().getProjectDirectory().getFileObject("build.xml");
+            try {
+                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget START");
+                Properties actionProps = new Properties();
+                String host = properties.getProperty(AppEnginePluginProperties.PROPERTY_HOST);                
+                String debug_port = properties.getProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER);                                
+                actionProps.put("ignore.ant.logger", "true");
+                actionProps.put("jpda.address", debug_port);
+                actionProps.put("jpda.host", host);
+                actionProps.put("do.debug.server", "true");
+                actionProps.put("j2ee.compile.on.save", "true");
+                actionProps.put("jpda.transport", "dt_socket");
+
+                ActionUtils.runTarget(fo, new String[]{"init", "-init-cos", "connect-debugger"}, actionProps).waitFinished();
+
+                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget END");
+
+            } catch (IOException ex) {
+                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget IOException");
+
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalArgumentException ex) {
+                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget IllegalArgumentException");
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
     }
 
     private String createProgressMessage(final String resName) {
@@ -297,13 +277,13 @@ for ( Object o : c) {
 
     @Override
     public DeploymentStatus getDeploymentStatus() {
-MyLOG.log("AppEngineDeployer.run() getDeploymentStatus = " + status + "; moduleID=" +manager.getModule().getModuleID());        
+        MyLOG.log("AppEngineDeployer.run() getDeploymentStatus = " + status + "; moduleID=" + manager.getModule().getModuleID());
         return status;
     }
 
     @Override
     public TargetModuleID[] getResultTargetModuleIDs() {
-MyLOG.log("AppEngineDeployer.run() getResultTargetModuleIDs = " + manager.getModule().getModuleID());
+        MyLOG.log("AppEngineDeployer.run() getResultTargetModuleIDs = " + manager.getModule().getModuleID());
         return new TargetModuleID[]{manager.getModule()};
     }
 

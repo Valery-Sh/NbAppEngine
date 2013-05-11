@@ -33,7 +33,6 @@ import org.openide.explorer.view.ListView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -63,20 +62,18 @@ public class AppEngineProjectChooser extends javax.swing.JPanel implements Prope
         RequestProcessor.getDefault().post(this);
     }
 
-    @Override
     public ExplorerManager getExplorerManager() {
         return explorer;
     }
 
-    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Node[] selNodes = explorer.getSelectedNodes();
 
         if (selNodes.length == 1) {
             Project project = selNodes[0].getLookup().lookup(Project.class);
-            AppEngineSelectedProject selectedService = Lookup.getDefault().lookup(AppEngineSelectedProject.class);
+
             // Set selected
-            selectedService.setProjectDirectory(project.getProjectDirectory());
+            manager.setSelected(project);
         }
     }
 

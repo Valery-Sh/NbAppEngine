@@ -51,14 +51,14 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
         this.name = appengineXmlFile.getParentFile().getParentFile().getParentFile().getName();
         checkAppEngineXml();
 
-        FileObject fo = FileUtil.toFileObject(appengineXmlFile);
+        /*FileObject fo = FileUtil.toFileObject(appengineXmlFile);
         if (fo != null) {
-            replaceBuildXml();
+            //replaceBuildXml();
             MyLOG.log(" --- AppEngineModuleConfiguration EEE originalBuildXml=" + buildXmlModifier.getOriginalBuildXml());
         } else {
             MyLOG.log(" --- AppEngineModuleConfiguration EEE FILEOBJECT=NULL");
         }
-
+*/
     }
 
     public void restoreBuildXml() {
@@ -106,15 +106,15 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     public J2eeModule getJ2eeModule() {
 
         String m = module == null ? "NULL" : module.getUrl();
-        MyLOG.log("AppEngineModuleConfiguration.getJ2eeModule module=" + m);
+//        MyLOG.log("AppEngineModuleConfiguration.getJ2eeModule module=" + m);
         return module;
     }
 
     @Override
     public void dispose() {
         Project p = AppEnginePluginUtils.getProject(appengineXmlFile);
-        MyLOG.log(" #????? AppEngineModuleConfiguration DISPOSE project=" + p.getProjectDirectory().getName());
-        restoreBuildXml();
+//        MyLOG.log(" #????? AppEngineModuleConfiguration DISPOSE project=" + p.getProjectDirectory().getName());
+        //restoreBuildXml();
         /*        if (!AppEnginePluginUtils.isAppEngineProject(p)) {
          MyLOG.log(" #????? AppEngineModuleConfiguration DISPOSE NOT AppEngine");
          restoreBuildXml();
@@ -161,7 +161,7 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     @Override
     public String getContextRoot() throws ConfigurationException {
         String m = module == null ? "NULL" : module.getUrl();
-        MyLOG.log("AppEngineModuleConfiguration.getContextRoot module=" + m + "; name=" + name);
+//        MyLOG.log("AppEngineModuleConfiguration.getContextRoot module=" + m + "; name=" + name);
 
         return "/";
         //return "/" + name;
@@ -171,7 +171,7 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     public void setContextRoot(String contextRoot) throws ConfigurationException {
         // Nothing to do
         String m = module == null ? "NULL" : module.getUrl();
-        MyLOG.log("AppEngineModuleConfiguration.setContextRoot module=" + m);
+//        MyLOG.log("AppEngineModuleConfiguration.setContextRoot module=" + m);
 
     }
 

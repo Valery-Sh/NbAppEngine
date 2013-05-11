@@ -34,7 +34,7 @@ public class AppEngineOptionalDeploymentManagerFactory extends OptionalDeploymen
 
     @Override
     public StartServer getStartServer(DeploymentManager manager) {
-MyLOG.log("AppEngineOptionalDeploymentManagerFactory.getStartServer(manager)");
+//MyLOG.log("AppEngineOptionalDeploymentManagerFactory.getStartServer(manager)");
         return AppEngineStartServer.getInstance((AppEngineDeploymentManager) manager);
     }
 

@@ -75,12 +75,6 @@ public class AppEngineManagerNode extends AbstractNode {
     }
 
     public AppEngineDeploymentManager getDeploymentManager() {
-MyLOG.log("@@@@@@ AppEngineManagerNode getDeploymentManager");        
-Collection col = lookup.lookupAll(Object.class);
-for ( Object o : col) {
-    MyLOG.log("@@@@@@ AppEngineManagerNode lookup class=" + o.getClass());
-}
-        return null;
-        //return lookup.lookup(AppEngineDeploymentManager.class);
+        return lookup.lookup(AppEngineDeploymentManager.class);
     }
 }

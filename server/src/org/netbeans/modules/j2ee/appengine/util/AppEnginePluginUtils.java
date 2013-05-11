@@ -83,12 +83,12 @@ public class AppEnginePluginUtils {
 
     public static Properties getProperties(Project project) {
         Properties props = new Properties();
-        MyLOG.log("^^^ isAppEngineProject.getPropertie path="+AntProjectHelper.PROJECT_PROPERTIES_PATH);
+        //MyLOG.log("^^^ isAppEngineProject.getPropertie path="+AntProjectHelper.PROJECT_PROPERTIES_PATH);
         
         FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PROJECT_PROPERTIES_PATH);
         
         if (fo == null) {
-            MyLOG.log("^^^ isAppEngineProject.getProperties=FALSE 1");
+          //  MyLOG.log("^^^ isAppEngineProject.getProperties=FALSE 1");
             return props;
         }
         try {
@@ -142,30 +142,30 @@ public class AppEnginePluginUtils {
         FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PRIVATE_PROPERTIES_PATH);
         //FileUtil.
         if (fo == null) {
-            MyLOG.log("^^^ isAppEngineProject=FALSE 1");
+            //MyLOG.log("^^^ isAppEngineProject=FALSE 1");
             return false;
         }
         try {
             //ep.load(fo.getInputStream());
             ep.load(new FileInputStream(fo.getPath()));
-            MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop=" + AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+            //MyLOG.log("^^^ isAppEngineProject  ep.size=" + ep.size() + "; pr prop=" + AntProjectHelper.PRIVATE_PROPERTIES_PATH);
             String p = ep.getProperty("j2ee.server.instance");
-            MyLOG.log("^^^ isAppEngineProject p = " + p);
+            //MyLOG.log("^^^ isAppEngineProject p = " + p);
 
             boolean r = false;
             if (p != null && p.startsWith("deployer:appengine:")) {
-                MyLOG.log("^^^ isAppEngineProject=TRUE");
+              //  MyLOG.log("^^^ isAppEngineProject=TRUE");
                 //              fo.getInputStream().close();
                 r = true;
             }
             if (!r) {
 //                fo.getInputStream().close();
             }
-            MyLOG.log("^^^ isAppEngineProject result=" + r);
+            //MyLOG.log("^^^ isAppEngineProject result=" + r);
 
             return r;
         } catch (IOException ioe) {
-            MyLOG.log("^^^ isAppEngineProject IOException " + ioe);
+            //MyLOG.log("^^^ isAppEngineProject IOException " + ioe);
 
             return false;
         }
@@ -174,7 +174,7 @@ public class AppEnginePluginUtils {
     public static boolean getBuildProperties(Project project) {
 
         if (project == null) {
-            MyLOG.log("^^^ isAppEngineProject=FALSE 0");
+            //MyLOG.log("^^^ isAppEngineProject=FALSE 0");
             return false;
         }
         EditableProperties ep = new EditableProperties(false);
@@ -189,10 +189,10 @@ public class AppEnginePluginUtils {
         }
         String p = ep.getProperty("j2ee.server.instance");
         if (p != null && p.startsWith("deployer:appengine:")) {
-            MyLOG.log("^^^ isAppEngineProject=TRUE");
+            //MyLOG.log("^^^ isAppEngineProject=TRUE");
             return true;
         }
-        MyLOG.log("^^^ isAppEngineProject=FALSE 1");
+        //MyLOG.log("^^^ isAppEngineProject=FALSE 1");
         return false;
     }
 
@@ -281,9 +281,9 @@ public class AppEnginePluginUtils {
     }
 
     public static Process runAntTarget(Project project, String target, Properties properties) {
-        MyLOG.log("AppEnginePluginUtils.runAntTarget projDir=" + project.getProjectDirectory().getName());
+        //MyLOG.log("AppEnginePluginUtils.runAntTarget projDir=" + project.getProjectDirectory().getName());
         for (Map.Entry e : properties.entrySet()) {
-            MyLOG.log("AppEnginePluginUtils.runAntTarget key=" + e.getKey() + "; val=" + e.getValue());
+          //  MyLOG.log("AppEnginePluginUtils.runAntTarget key=" + e.getKey() + "; val=" + e.getValue());
         }
 
         FileObject buildXML = project.getProjectDirectory().getFileObject("build.xml");
@@ -299,11 +299,11 @@ public class AppEnginePluginUtils {
                 builder = builder.addArgument("-f");
                 builder = builder.addArgument(buildXML.getPath());
                 builder = builder.addArgument(target);
-                MyLOG.log("AppEnginePluginUtils.runAntTarget buildXML.getPath()=" + buildXML.getPath());
+            //    MyLOG.log("AppEnginePluginUtils.runAntTarget buildXML.getPath()=" + buildXML.getPath());
                 // Add properties
                 for (Object key : properties.keySet()) {
                     builder = builder.addArgument("-D" + key + "=" + properties.getProperty((String) key));
-                    MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=" + properties.getProperty((String) key));
+              //      MyLOG.log("AppEnginePluginUtils.runAntTarget target=" + target + "; " + key + "=" + properties.getProperty((String) key));
                 }
 
                 // Redirect error stream
