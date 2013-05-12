@@ -18,7 +18,7 @@ compiled with jdk6.
 Improvements
 ------------
 
-Allows corretly Run/Debug/Deploy/Profile any open project.
+Allows correctly Run/Debug/Deploy/Profile any open project.
 
 
 
