@@ -12,6 +12,13 @@ Released builds can be found here:
 https://code.google.com/p/nb-gaelyk-plugin/downloads/list
 
 Choose the file  _nbappengine-7.3-gae1.8.x.zip_  from the list and download it.
+The build is compiled with jdk7 but the source code doesn't contain specific for java 7 code. So it can be 
+compiled with jdk6.
+
+Improvements
+------------
+
+Allows corretly Run/Debug/Deploy/Profile any open project.
 
 
 
