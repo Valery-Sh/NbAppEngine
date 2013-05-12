@@ -11,7 +11,7 @@ Released builds can be found here:
 
 https://code.google.com/p/nb-gaelyk-plugin/downloads/list
 
-Choose the file  *nbappengine-7.3-gae1.8.x.zip*  from the list and download it.
+Choose the file  _nbappengine-7.3-gae1.8.x.zip_  from the list and download it.
 
 
 
