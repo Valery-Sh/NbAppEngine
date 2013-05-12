@@ -22,15 +22,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
-import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -43,7 +38,6 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     private final J2eeModule module;
     private final File appengineXmlFile;
     private final String name;
-    private AppEngineBuildXmlModifier buildXmlModifier;
 
     public AppEngineModuleConfiguration(J2eeModule module) {
         this.module = module;
@@ -51,77 +45,20 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
         this.name = appengineXmlFile.getParentFile().getParentFile().getParentFile().getName();
         checkAppEngineXml();
 
-        /*FileObject fo = FileUtil.toFileObject(appengineXmlFile);
-        if (fo != null) {
-            //replaceBuildXml();
-            MyLOG.log(" --- AppEngineModuleConfiguration EEE originalBuildXml=" + buildXmlModifier.getOriginalBuildXml());
-        } else {
-            MyLOG.log(" --- AppEngineModuleConfiguration EEE FILEOBJECT=NULL");
-        }
-*/
-    }
-
-    public void restoreBuildXml() {
-        try {
-            buildXmlModifier.restoreBuildXml();
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
-    }
-
-    protected void replaceBuildXml() {
-
-        Project p = AppEnginePluginUtils.getProject(appengineXmlFile);
-        buildXmlModifier = new AppEngineBuildXmlModifier(p);
-
-        try {
-            buildXmlModifier.replaceBuildXml();
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
     }
 
     @Override
     public Lookup getLookup() {
-        String m = module == null ? "NULL" : module.getUrl();
-        /*MyLOG.log("AppEngineModuleConfiguration.getLookup module=" + m); 
-         Lookup r = Lookups.fixed(this);
-         File f = new File("d:/VnsTestApps/WebDebug1");
-        
-         Collection c = r.lookupAll(Object.class);
-         int sz = c.size();
-         MyLOG.log("AppEngineModuleConfiguration.getLookup SIZE()=" + sz);
-         for ( Object o : c) {
-         MyLOG.log(" --- AppEngineModuleConfiguration.getLookup LLCLASS=" + o.getClass());
-         }
-        
-         return r;
-         */
         return Lookups.fixed(this);
     }
 
     @Override
     public J2eeModule getJ2eeModule() {
-
-        String m = module == null ? "NULL" : module.getUrl();
-//        MyLOG.log("AppEngineModuleConfiguration.getJ2eeModule module=" + m);
         return module;
     }
 
     @Override
     public void dispose() {
-        Project p = AppEnginePluginUtils.getProject(appengineXmlFile);
-//        MyLOG.log(" #????? AppEngineModuleConfiguration DISPOSE project=" + p.getProjectDirectory().getName());
-        //restoreBuildXml();
-        /*        if (!AppEnginePluginUtils.isAppEngineProject(p)) {
-         MyLOG.log(" #????? AppEngineModuleConfiguration DISPOSE NOT AppEngine");
-         restoreBuildXml();
-         } else {
-         MyLOG.log("#????? AppEngineModuleConfiguration DISPOSE isAppEngine");
-         }
-         */
     }
 
     private void checkAppEngineXml() {
@@ -135,10 +72,10 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
                 content.append("    <version>1</version>").append(lineSep);
 
                 content.append("    <!--");
-                content.append("    <ssl-enabled>false</ssl-enabled>");
-                content.append("    <sessions-enabled>true</sessions-enabled>");
-                content.append("    -->");
-                content.append("    <threadsafe>false</threadsafe>");
+                content.append("    <ssl-enabled>false</ssl-enabled>").append(lineSep);
+                content.append("    <sessions-enabled>true</sessions-enabled>").append(lineSep);
+                content.append("    -->").append(lineSep);
+                content.append("    <threadsafe>false</threadsafe>").append(lineSep);;
 
                 content.append("</appengine-web-app>").append(lineSep);
                 createFile(appengineXmlFile, content.toString(), "UTF-8");
@@ -160,39 +97,12 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
 
     @Override
     public String getContextRoot() throws ConfigurationException {
-        String m = module == null ? "NULL" : module.getUrl();
-//        MyLOG.log("AppEngineModuleConfiguration.getContextRoot module=" + m + "; name=" + name);
-
         return "/";
-        //return "/" + name;
     }
 
     @Override
     public void setContextRoot(String contextRoot) throws ConfigurationException {
         // Nothing to do
         String m = module == null ? "NULL" : module.getUrl();
-//        MyLOG.log("AppEngineModuleConfiguration.setContextRoot module=" + m);
-
     }
-
-    /*My    @Override
-     public void resultChanged(LookupEvent le) {
-     AppEngineSelectedProject selected = Lookup.getDefault().lookup(AppEngineSelectedProject.class);
-     Collection<? extends Project> projects = lookupResults.allInstances();
-     FileObject oldDir = selected.getProjectDirectory();
-     selected.setProjectDirectory(null);
-        
-     if (projects.size() == 1) {
-     Project project = projects.iterator().next();
-     FileObject newDir = project.getProjectDirectory();
-     FileObject deployedDir = selected.getDeployedProjectDirectory();
-            
-     selected.setProjectDirectory(project.getProjectDirectory());
-     if ( (! newDir.equals(oldDir)) && (! newDir.equals(deployedDir)) ) {
-     FileObject dist = newDir.getFileObject("dist");
-     if ( dist != null ) {
- 
-     }
-     }
-     */
 }

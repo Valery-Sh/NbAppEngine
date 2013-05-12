@@ -79,7 +79,7 @@ public class AppEngineProjectChooser extends javax.swing.JPanel implements Prope
 
     /** Loads dependencies outside EQ thread, updates tab state in EQ */
     public void run() {
-        Project[] projects = AppEnginePluginUtils.getAppEngineProjects();
+        Project[] projects = AppEnginePluginUtils.getAppEngineProjects(manager.getUri());
 
         final List<Node> toRet = new ArrayList<Node>();
 

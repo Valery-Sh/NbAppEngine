@@ -36,7 +36,6 @@ public class AppEngineModule implements TargetModuleID {
         this.hostname = hostname;
         this.port = port;
         this.contextRoot = contextRoot;
-//MyLOG.log("AppEngineModule costr contextRoot=" + contextRoot + "; target="+target+"; host=" + hostname + "; port="+ port);        
     }
 
     @Override
@@ -53,8 +52,6 @@ public class AppEngineModule implements TargetModuleID {
 
     @Override
     public String getWebURL() {
-//MyLOG.log("AppEngineModule.getWebURL()");        
-        //return target.getServerUri () + "/" + contextRoot;
         return "http://" + hostname + ":" + port;
     }
 

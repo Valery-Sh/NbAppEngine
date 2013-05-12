@@ -56,13 +56,10 @@ public class AppEngineDeploymentFactory implements DeploymentFactory {
         if (!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri);
         }
-        //MyLOG.log("AppEngineDeploymentFactory.getDeploymentManager uri="+ uri);
         // Trying to fetch from cache
         DeploymentManager manager = managers.get(uri);
 
         if (null == manager) {
-        //MyLOG.log("AppEngineDeploymentFactory.getDeploymentManager MANAGER NULL uri="+ uri);
-            
             // Create a new instance
             manager = new AppEngineDeploymentManager(uri);
             // Insert into cache

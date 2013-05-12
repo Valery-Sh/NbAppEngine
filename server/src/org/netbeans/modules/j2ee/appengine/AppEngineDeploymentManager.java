@@ -58,7 +58,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     private Process process;
     private ExecutorService executor;
     private Project selected;
-    //private Project selectedByAntLogger;
     private boolean debuggedSet;
     private boolean serverNeedsRestart;    
     private boolean profilingNeedsStop;    
@@ -229,13 +228,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     @Override
     public ProgressObject distribute(Target[] target, File file, File plan) throws IllegalStateException {
         String fn = file == null ? "NULL" : file.getName(); //My to delete
-        MyLOG.log("AppEngineDeploymentManager.DISTRIBUTE aFILE=" + fn);
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
-     /*   if (startServer.getMode() == AppEngineServerMode.DEBUG && startServer.isRunning() ) {
-        MyLOG.log("AppEngineDeploymentManager.DISTRIBUTE before return startServer.getCurrentProgressObject(); =" + startServer.getCurrentProgressObject().getClass());
-            return getProgress();
-        }
-     */ 
         // Wait to Google App Engine will be initialized
         while ((!logger.contains("Dev App Server is now running"))
                 && (!logger.contains("The server is running"))
@@ -251,30 +244,9 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         ProgressObject p = startServer.getCurrentProgressObject();
         // If the deployer wasn't invoked return
         if (!(p instanceof AppEngineDeployer)) {
-            MyLOG.log("AppEngineDeploymentManager distribute NOT instanceof AppEngineDeployer");
             return p;
         }
         // Get checksums
-/* //My        String checksum = AppEnginePluginUtils.getMD5Checksum(file);
-         String checksumToCompare = ((AppEngineDeployer) p).getWarChecksum();
-         // If the same as deployed project return
-         if (null != checksum && null != checksumToCompare
-         && checksum.equals(checksumToCompare)
-         || !startServer.getMode().equals(AppEngineServerMode.NORMAL)) {
-         MyLOG.log("AppEngineDeploymentManager.distribute the same as deployed project return");
-         return p;
-         }
-         */
-
-/*        FileUtil.toFileObject(file);
-        Project newSelected = FileOwnerQuery.getOwner(FileUtil.toFileObject(file));
-        if (selected.equals(oldSelected)) {
-//        if (newSelected.equals(selected)) {
-            MyLOG.log("AppEngineDeploymentManager.distribute the same as deployed project return");
-            return p;
-        }
-        MyLOG.log("AppEngineDeploymentManager.distribute NOT the same as deployed project return.  startServer.isRunning=" + startServer);
-*/  
         return getProgress();
     }
 
@@ -290,20 +262,16 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public ProgressObject start(TargetModuleID[] arg0) throws IllegalStateException {
-        MyLOG.log("AppEngineDeploymentManager.START(arg0) moduleID="
-                + arg0[0].getModuleID() + "; webURL" + arg0[0].getWebURL());
         return getProgress();
     }
 
     @Override
     public ProgressObject stop(TargetModuleID[] arg0) throws IllegalStateException {
-        MyLOG.log("AppEngineDeploymentManager.STOP ");
         return getProgress();
     }
 
     @Override
     public ProgressObject undeploy(TargetModuleID[] arg0) throws IllegalStateException {
-        MyLOG.log("AppEngineDeploymentManager.undeploy ");
         return getProgress();
     }
 

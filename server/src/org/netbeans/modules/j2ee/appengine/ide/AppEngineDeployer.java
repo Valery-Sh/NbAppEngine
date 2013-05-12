@@ -44,7 +44,6 @@ import org.netbeans.api.extexecution.startup.StartupExtender;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.server.ServerInstance;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
 import org.netbeans.modules.j2ee.deployment.plugins.api.CommonServerBridge;
@@ -92,7 +91,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
     }
 
     public static AppEngineDeployer getInstance(AppEngineDeploymentManager manager, AppEngineServerMode mode, Project project) {
-        MyLOG.log("AppEngineDeployer constructor for " + project.getProjectDirectory().getName());
         return new AppEngineDeployer(manager, mode, project);
     }
 
@@ -135,11 +133,9 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
         StartupExtender.StartMode startMode;
         String target;
         if (mode == AppEngineServerMode.NORMAL) {
-            MyLOG.log("######## runserver-normal");
             target = "runserver";
             startMode = StartupExtender.StartMode.NORMAL;
         } else if (mode == AppEngineServerMode.DEBUG) {
-            MyLOG.log("######## runserver-debug");
             target = "runserver-debug";
             startMode = StartupExtender.StartMode.DEBUG;
         } else if (mode == AppEngineServerMode.PROFILE) {
@@ -170,7 +166,7 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
         // Executor task object
         Process serverProcess = AppEnginePluginUtils.runAntTarget(project, target, props);
-
+        //serverProcess.exitValue();
         // Create new executor
         executor = Executors.newSingleThreadExecutor();
 
@@ -197,7 +193,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
         // Store process
         manager.setProcess(serverProcess);
-        MyLOG.log("AppEngineDeployer.run() RUNNING fireStartProgressEvent(StateType.RUNNING)");
         // Fire changes
         fireStartProgressEvent(StateType.RUNNING, createProgressMessage("MSG_START_SERVER_IN_PROGRESS"));
 
@@ -208,7 +203,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
                 && !logger.contains("Waiting for connection on port")) {
             if (logger.contains("Address already in use") || logger.contains("Error occurred")
                     || logger.contains("BUILD FAILED")) {
-                MyLOG.log("AppEngineDeployer.run() fireStartProgressEvent(StateType.FAILED)");
                 // Fire changes
                 fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED"));
                 // Clear process
@@ -223,17 +217,11 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
                 // do nothing
             }
         }
-        //
-        //AppEngineSelectedProject selectedService = Lookup.getDefault().lookup(AppEngineSelectedProject.class);
-        //selectedService.setDeployedProjectDirectory(selectedService.getProjectDirectory());
-        MyLOG.log("AppEngineDeployer.run() COMPLETED fireStartProgressEvent(StateType.COMPLETED)");
-
         fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STARTED"));
 
         if ("runserver-debug".equals(target) && manager.isDebuggedSet()) {
             FileObject fo = manager.getSelected().getProjectDirectory().getFileObject("build.xml");
             try {
-                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget START");
                 Properties actionProps = new Properties();
                 String host = properties.getProperty(AppEnginePluginProperties.PROPERTY_HOST);                
                 String debug_port = properties.getProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER);                                
@@ -246,14 +234,9 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
                 ActionUtils.runTarget(fo, new String[]{"init", "-init-cos", "connect-debugger"}, actionProps).waitFinished();
 
-                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget END");
-
             } catch (IOException ex) {
-                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget IOException");
-
                 Exceptions.printStackTrace(ex);
             } catch (IllegalArgumentException ex) {
-                MyLOG.log("AppEngineDeployer.run() ActionUtils.runTarget IllegalArgumentException");
                 Exceptions.printStackTrace(ex);
             }
         }
@@ -277,13 +260,11 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
     @Override
     public DeploymentStatus getDeploymentStatus() {
-        MyLOG.log("AppEngineDeployer.run() getDeploymentStatus = " + status + "; moduleID=" + manager.getModule().getModuleID());
         return status;
     }
 
     @Override
     public TargetModuleID[] getResultTargetModuleIDs() {
-        MyLOG.log("AppEngineDeployer.run() getResultTargetModuleIDs = " + manager.getModule().getModuleID());
         return new TargetModuleID[]{manager.getModule()};
     }
 
@@ -334,7 +315,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
         synchronized (listeners) {
             targets = listeners.toArray(new ProgressListener[]{});
         }
-        MyLOG.log("AppEngineDeployer.fireHandleProgressEvent() listeners.size()=" + listeners.size());
         for (ProgressListener listener : targets) {
             listener.handleProgressEvent(evt);
         }

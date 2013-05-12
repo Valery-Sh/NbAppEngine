@@ -22,14 +22,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.netbeans.api.debugger.DebuggerManager;
-import org.netbeans.api.debugger.Session;
 import org.netbeans.api.extexecution.ExternalProcessSupport;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
 import org.netbeans.modules.j2ee.appengine.AppEngineProgressObject;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.ui.AppEngineProjectChooser;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
@@ -75,7 +72,7 @@ public class AppEngineStartServer extends StartServer {
 
     @Override
     public boolean needsRestart(Target target) {
-        MyLOG.log("#### StartServer NEEDS RESTART manager.needsRestart=" + manager.isServerNeedsRestart());
+    //    return false;
         return manager.isServerNeedsRestart();
     }
 
@@ -115,22 +112,16 @@ public class AppEngineStartServer extends StartServer {
 
     @Override
     public ProgressObject startDeploymentManager() {
-        //manager.setServerNeedsRestart(false);
-        MyLOG.log("AppEngineStartServer.startDeploymentManager() : URL=");
         return start(mode = AppEngineServerMode.NORMAL);
     }
 
     @Override
     public ProgressObject startDebugging(Target target) {
-        //manager.setServerNeedsRestart(false);
-        MyLOG.log("AppEngineStartServer.startDebugging(target) prj=" + manager.getSelected());
         return start(mode = AppEngineServerMode.DEBUG);
-
     }
 
     @Override
     public ProgressObject startProfiling(Target target) {
-        MyLOG.log("*** AppEngineStartServer.startProfiling");
         return start(mode = AppEngineServerMode.PROFILE);
     }
 
@@ -153,8 +144,6 @@ public class AppEngineStartServer extends StartServer {
                 Thread.sleep(1000);
             } catch (Exception e) {
             }
-//        MyLOG.log("1) AppStartServer.stopDeploymentManager() : process=");
-            
             // Set to null
             manager.setProcess(null);
         }
@@ -204,21 +193,20 @@ public class AppEngineStartServer extends StartServer {
 
         try {
             if (null == process) {
-                MyLOG.log("======== server NOT RUNNING");
                 return false;
             }
         } catch (IllegalThreadStateException ex) {
             // Nothing to do
         }
-        MyLOG.log("======== server IS RUNNING");
 
         return true;
     }
 
     @Override
     public boolean isDebuggable(Target target) {
+        String s = null;
         // It's not in debug mode
-        if (!isRunning() || null == mode || mode == AppEngineServerMode.NORMAL) {
+        if (!isRunning() || null == mode || mode == AppEngineServerMode.NORMAL || mode == AppEngineServerMode.PROFILE) {
             return false;
         }
         // It's in debug mode
@@ -227,7 +215,6 @@ public class AppEngineStartServer extends StartServer {
 
     @Override
     public ServerDebugInfo getDebugInfo(Target target) {
-        MyLOG.log("** -- ** StartServer.getDebugInfo");
         return new ServerDebugInfo(
                 manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_HOST),
                 Integer.parseInt(manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER)));
@@ -240,13 +227,6 @@ public class AppEngineStartServer extends StartServer {
      * @return
      */
     private ProgressObject start(AppEngineServerMode mode) {
-        if (mode == AppEngineServerMode.DEBUG) {
-            MyLOG.log("AppEngineStartServer.start(mode,selected) mode=DEBUG; selected=" + manager.getSelected());
-        } else if (mode == AppEngineServerMode.NORMAL) {
-            MyLOG.log("AppEngineStartServer.start(mode,selected) mode=NORMAL; selected=" + manager.getSelected());
-        } else if (mode == AppEngineServerMode.PROFILE) {
-            MyLOG.log("AppEngineStartServer.start(mode,selected) mode=PROFILE; selected=" + manager.getSelected());
-        }
         if ( manager.getSelected() == null ) {
             Project p = requestSelected(AppEngineServerMode.NORMAL);
             manager.setSelected(p);
@@ -263,7 +243,7 @@ public class AppEngineStartServer extends StartServer {
     }
 
     private Project requestSelected(AppEngineServerMode mode) {
-        Project[] projects = AppEnginePluginUtils.getAppEngineProjects();
+        Project[] projects = AppEnginePluginUtils.getAppEngineProjects(manager.getUri());
         if (projects.length == 0) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(AppEngineStartServer.class, "MSG_NoProjectWarning")));
         } else if (projects.length == 1) {

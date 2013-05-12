@@ -25,16 +25,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URL;
-import java.util.Properties;
 import java.util.logging.Logger;
-import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.AntDeploymentProvider;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.modules.InstalledFileLocator;
 
 /**
  * @author Michal Mocnak
@@ -50,7 +45,6 @@ public class AppEngineAntDeploymentProvider implements AntDeploymentProvider {
 
     @Override
     public void writeDeploymentScript(OutputStream os, Object moduleType) throws IOException {
-        //MyLOG.log("AppEngineAntDeploymentProvider.write os.class="+os.getClass());
         String xml = convertStreamToString(AppEngineDeploymentManager.class.getResourceAsStream("resources/appengine-ant-deploy.xml"));
         // Set sdk.path property
         xml = xml.replace("#appengine.location", manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_APPENGINE_LOCATION));

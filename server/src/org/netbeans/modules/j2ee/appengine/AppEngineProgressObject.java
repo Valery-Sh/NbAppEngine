@@ -52,7 +52,6 @@ public class AppEngineProgressObject implements ProgressObject {
 
     @Override
     public TargetModuleID[] getResultTargetModuleIDs() {
-//MyLOG.log("AppEngineProgressObject.getResultTargetModuleIDs moduleID" + module.getModuleID());
         return new TargetModuleID[] {module};
     }
 

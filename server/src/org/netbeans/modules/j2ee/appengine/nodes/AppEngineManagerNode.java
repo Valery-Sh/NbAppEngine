@@ -18,10 +18,8 @@
 package org.netbeans.modules.j2ee.appengine.nodes;
 
 import java.awt.Component;
-import java.util.Collection;
 import javax.swing.Action;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizer;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizerDataSupport;
 import org.openide.nodes.AbstractNode;

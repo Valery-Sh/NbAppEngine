@@ -623,6 +623,7 @@ public final class AppEngineCustomizerSupport {
             this.extensions = Arrays.asList(extensions);
         }
         
+        @Override
         public boolean accept(File f) {
             if (f.isDirectory())
                 return true;
@@ -634,6 +635,7 @@ public final class AppEngineCustomizerSupport {
             return this.extensions.contains(extension);
         }
         
+        @Override
         public String getDescription() {
             return this.description;
         }
