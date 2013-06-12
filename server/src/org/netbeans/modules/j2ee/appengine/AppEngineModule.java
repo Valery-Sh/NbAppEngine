@@ -32,6 +32,7 @@ public class AppEngineModule implements TargetModuleID {
     private String contextRoot;
 
     public AppEngineModule(AppEngineTarget target, String hostname, int port, String contextRoot) {
+MyLOG.log("AppEngineModule.getModuleID() context="+ contextRoot);            
         this.target = target;
         this.hostname = hostname;
         this.port = port;

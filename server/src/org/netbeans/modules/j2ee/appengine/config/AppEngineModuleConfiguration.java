@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfiguration;
@@ -40,6 +41,8 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     private final String name;
 
     public AppEngineModuleConfiguration(J2eeModule module) {
+//MyLOG.log("APPENG: TTTTT AppEngineModuleConfiguration CONSTR");            
+        
         this.module = module;
         this.appengineXmlFile = module.getDeploymentConfigurationFile("WEB-INF/appengine-web.xml");
         this.name = appengineXmlFile.getParentFile().getParentFile().getParentFile().getName();

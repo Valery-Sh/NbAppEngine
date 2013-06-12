@@ -18,6 +18,7 @@
 package org.netbeans.modules.j2ee.appengine;
 
 import java.util.HashMap;
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
@@ -30,32 +31,45 @@ public class AppEngineDeploymentFactory implements DeploymentFactory {
 
     public static final String URI_PREFIX = "deployer:appengine";
     public static final String PROP_SERVER_ROOT = "appengine_server_root"; // NOI18N
+    private final HashMap<String, DeploymentManager> managers = new HashMap<String, DeploymentManager>();
     
     private static AppEngineDeploymentFactory instance = null;
 
     private AppEngineDeploymentFactory() {
+//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory CONSTR ");            
+        
     }
 
     public synchronized static AppEngineDeploymentFactory getInstance() {
         if (null == instance) {
+MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory not created yet ");            
+            
             instance = new AppEngineDeploymentFactory();
+            DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
+            
         }
+//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory created allready ");            
 
         return instance;
     }
 
-    private final HashMap<String, DeploymentManager> managers = new HashMap<String, DeploymentManager>();
 
     @Override
     public boolean handlesURI(String uri) {
-        return uri != null && uri.startsWith(URI_PREFIX);
+MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory.handleslsURI  " + uri);            
+        
+        return uri != null && uri.startsWith(URI_PREFIX) ;
     }
 
     @Override
     public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
+MyLOG.log("APPENG: GGGGGGGGG Before handlesUri AppEngineDeploymentFactory.getDeploymentManager  " + uri);            
+        
         if (!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri);
         }
+MyLOG.log("APPENG: GGGGGGGGG After handlesUri AppEngineDeploymentFactory.getDeploymentManager  ");            
+        
         // Trying to fetch from cache
         DeploymentManager manager = managers.get(uri);
 

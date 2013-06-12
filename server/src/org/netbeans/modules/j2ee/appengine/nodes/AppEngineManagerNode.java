@@ -20,6 +20,7 @@ package org.netbeans.modules.j2ee.appengine.nodes;
 import java.awt.Component;
 import javax.swing.Action;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizer;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizerDataSupport;
 import org.openide.nodes.AbstractNode;
@@ -48,7 +49,9 @@ public class AppEngineManagerNode extends AbstractNode {
 
     @Override
     public String getDisplayName() {
-        return NbBundle.getBundle("org.netbeans.modules.j2ee.appengine.resources.Bundle").getString("appengine.name");
+      //  return NbBundle.getBundle("org.netbeans.modules.j2ee.appengine.resources.Bundle").getString("appengine.name");
+MyLOG.log("{{{{{{{{{{{{{{{{{{{ AppEngineManagerNode");        
+return "My Test App Engine+";        
     }
 
     @Override

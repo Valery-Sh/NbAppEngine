@@ -108,6 +108,7 @@ public class AppEnginePluginProperties {
         return AppEngineCustomizerSupport.tokenizePath(path);
     }
 
+    
     public void setJavadocs(List<URL> path) {
         properties.setProperty(PROP_JAVADOCS, AppEngineCustomizerSupport.buildPath(path));
         manager.getPlatform().notifyLibrariesChanged();

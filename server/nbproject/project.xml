@@ -84,6 +84,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.j2ee.core</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>0</release-version>
+                        <specification-version>1.15.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.j2eeapis</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -114,14 +123,10 @@
                     <code-name-base>org.netbeans.modules.profiler</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
-                    <!--run-dependency>
-                        <release-version>2</release-version>
-                        <specification-version>2.9.1</specification-version>
-                    </run-dependency-->
                     <run-dependency>
                         <release-version>2</release-version>
                         <implementation-version/>
-                    </run-dependency>                    
+                    </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.project.ant</code-name-base>

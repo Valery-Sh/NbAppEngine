@@ -32,18 +32,29 @@ import org.openide.WizardDescriptor.InstantiatingIterator;
  */
 public class AppEngineOptionalDeploymentManagerFactory extends OptionalDeploymentManagerFactory {
 
+      public AppEngineOptionalDeploymentManagerFactory() {
+        super();
+//MyLOG.log("OOOOOOO AppEngineOptionalDeploymentManagerFactory CONSTRUCTOR ");
+//MyLOG.log("OOOOOOO GaeDeploymentFactory " + GaeInstanceProvider.getInstance());        
+    }
     @Override
     public StartServer getStartServer(DeploymentManager manager) {
+//MyLOG.log("APPENG: TTTTT AppEngineOptionalDeploymentManagerFactory.getStartServer(manager)");            
+
         return AppEngineStartServer.getInstance((AppEngineDeploymentManager) manager);
     }
 
     @Override
     public InstantiatingIterator getAddInstanceIterator() {
+//MyLOG.log("APPENG: TTTTT AppEngineOptionalDeploymentManagerFactory.getAddInstanceIterator");            
+        
         return new AppEngineInstantiatingIterator();
     }
 
     @Override
     public FindJSPServlet getFindJSPServlet(DeploymentManager manager) {
+MyLOG.log("APPENG: TTTTT AppEngineOptionalDeploymentManagerFactory.getFindJSPServlet");            
+      //  return null;
         return new AppEngineFindJSPServlet((AppEngineDeploymentManager) manager);
     }
 
@@ -56,6 +67,8 @@ public class AppEngineOptionalDeploymentManagerFactory extends OptionalDeploymen
 
     @Override
     public AntDeploymentProvider getAntDeploymentProvider(DeploymentManager manager) {
+//MyLOG.log("APPENG: TTTTT AppEngineOptionalDeploymentManagerFactory.getAntDeploymentProvider");            
+        
         return new AppEngineAntDeploymentProvider((AppEngineDeploymentManager) manager);
     }
 }

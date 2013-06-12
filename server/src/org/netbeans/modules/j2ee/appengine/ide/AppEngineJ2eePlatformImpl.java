@@ -21,8 +21,10 @@ import java.awt.Image;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import org.netbeans.api.j2ee.core.Profile;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
@@ -40,6 +42,8 @@ public class AppEngineJ2eePlatformImpl extends J2eePlatformImpl {
     private AppEnginePluginProperties properties;
 
     public AppEngineJ2eePlatformImpl(AppEngineDeploymentManager manager) {
+//MyLOG.log("APPENG: TTTTT AppEngineJ2eePlatformImpl CONSTR");            
+        
         this.properties = manager.getProperties();
 
         // Load libraries
@@ -75,7 +79,7 @@ public class AppEngineJ2eePlatformImpl extends J2eePlatformImpl {
     public boolean isToolSupported(String arg0) {
         if(arg0.equals("org.datanucleus.store.appengine.jpa.DatastorePersistenceProvider")) { // NOI18N
             return true;
-        } else if(arg0.equals("dataNucleusPersistenceProviderIsDefault")) { // NOI18N
+        } else if(arg0.equals("dataNucleusPersistenceProviderIsDefault")) { 
             return true;
         }
         return false;
@@ -84,21 +88,43 @@ public class AppEngineJ2eePlatformImpl extends J2eePlatformImpl {
     @Override
     public Set getSupportedSpecVersions() {
         Set <String> result = new HashSet<String>();
-        //result.add(J2eeModule.JAVA_EE_5);
         result.add("1.5");
+//        result.add("1.6");
+        
+        return result;
+    }
+   @Override
+    public Set<Profile> getSupportedProfiles() {
+        Set <Profile> result = new HashSet<Profile>();
+        result.add(Profile.JAVA_EE_5);
+//        result.add(Profile.JAVA_EE_6_WEB);
+//        result.add(Profile.JAVA_EE_7_WEB);
+        
         return result;
     }
 
     @Override
     public Set getSupportedModuleTypes() {
+        return getSupportedTypes();
+    }
+
+    @Override
+    public Set getSupportedTypes() {
         Set<Object> result = new HashSet<Object>();
         result.add(J2eeModule.Type.WAR);
+        //result.add(J2eeModule.Type.EAR); // my experiment
+        
         return result;
     }
 
     @Override
     public Set getSupportedJavaPlatformVersions() {
-        return null;
+        Set <String> result = new HashSet<String>();
+        result.add("1.5");
+        result.add("1.6");
+        result.add("1.7");
+        return result;        
+        //return null;
     }
 
     @Override

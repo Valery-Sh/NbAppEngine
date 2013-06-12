@@ -59,14 +59,17 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     private ExecutorService executor;
     private Project selected;
     private boolean debuggedSet;
-    private boolean serverNeedsRestart;    
-    private boolean profilingNeedsStop;    
-    
+    private boolean serverNeedsRestart;
+    private boolean profilingNeedsStop;
 
     public AppEngineDeploymentManager(String uri) {
+//MyLOG.log("APPENG:MMMMMM AppEngineDeploymentManager CONSTRUCTOR ");            
+
         this.uri = uri;
         this.properties = new AppEnginePluginProperties(this);
+        
         this.target = new AppEngineTarget(getProperties().getInstanceProperties().getProperty(InstanceProperties.DISPLAY_NAME_ATTR));
+        
         this.logger = AppEngineLogger.getInstance(uri);
     }
 
@@ -95,25 +98,25 @@ public class AppEngineDeploymentManager implements DeploymentManager {
      */
     public ProgressObject getProgress() {
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
-        if (startServer.getMode() == AppEngineServerMode.DEBUG && startServer.isRunning() ) {
-            progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.DEBUG);            
-        } else
-        if (null == progress) {
+        if (startServer.getMode() == AppEngineServerMode.DEBUG && startServer.isRunning()) {
+            progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.DEBUG);
+        } else if (null == progress) {
             progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.NORMAL);
         }
 
         return progress;
     }
-    
+
     public AppEngineServerMode getServerMode() {
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
         return startServer.getMode();
     }
+
     public boolean isServerRunning() {
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
         return startServer.isRunning();
     }
-    
+
     public AppEngineTarget getTarget() {
         return target;
     }
@@ -133,7 +136,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     public Project getSelected() {
         return selected;
     }
-    
+
     public void setSelected(Project selected) {
         this.selected = selected;
     }
@@ -153,7 +156,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     public void setProfilingNeedsStop(boolean profilingNeedsStop) {
         this.profilingNeedsStop = profilingNeedsStop;
     }
-    
+
     public boolean isServerNeedsRestart() {
         return serverNeedsRestart;
     }
@@ -162,14 +165,14 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         this.serverNeedsRestart = needsRestart;
     }
 
-/*    public Project getOldSelected() {
-        return oldSelected;
-    }
+    /*    public Project getOldSelected() {
+     return oldSelected;
+     }
 
-    public void setOldSelected(Project oldSelected) {
-        this.oldSelected = oldSelected;
-    }
-*/
+     public void setOldSelected(Project oldSelected) {
+     this.oldSelected = oldSelected;
+     }
+     */
     public Process getProcess() {
         return process;
     }
@@ -188,31 +191,43 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public Target[] getTargets() throws IllegalStateException {
+        MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getTargets()");
+
         return new Target[]{target};
     }
 
     @Override
     public TargetModuleID[] getRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
+//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getRunningModules()");            
+
         return new TargetModuleID[]{getModule()};
     }
 
     @Override
     public TargetModuleID[] getNonRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-        return new TargetModuleID[]{getModule()};
+//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getNotRunningModules()");            
+
+//        return new TargetModuleID[]{getModule()};
+        return new TargetModuleID[]{};
     }
 
     @Override
     public TargetModuleID[] getAvailableModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-        AppEngineModule m = getModule();
-        String s = m == null ? "NULL" : m.getModuleID();
-        if (m == null) {
-            return null;
-        }
-        return new TargetModuleID[]{m};
+//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getAvailableModules()");            
+        return new TargetModuleID[]{};
+        /*        AppEngineModule m = getModule();
+         String s = m == null ? "NULL" : m.getModuleID();
+         if (m == null) {
+         return null;
+         }
+         return new TargetModuleID[]{m};
+         */
     }
 
     @Override
     public DeploymentConfiguration createConfiguration(DeployableObject arg0) throws InvalidModuleException {
+//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.createConfiguration");            
+
         return null;
     }
 
@@ -267,6 +282,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public ProgressObject stop(TargetModuleID[] arg0) throws IllegalStateException {
+        //Projects p;
         return getProgress();
     }
 
@@ -314,7 +330,9 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean isLocaleSupported(Locale arg0) {
+MyLOG.log("APPENGINE: !!! isLocaleSuppurted");
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -337,5 +355,4 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     public ProgressObject redeploy(TargetModuleID[] tmids, DeploymentContext deployment) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 }

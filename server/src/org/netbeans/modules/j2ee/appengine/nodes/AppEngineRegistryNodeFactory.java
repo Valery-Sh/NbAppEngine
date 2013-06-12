@@ -17,6 +17,7 @@
  */
 package org.netbeans.modules.j2ee.appengine.nodes;
 
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -28,11 +29,15 @@ public class AppEngineRegistryNodeFactory implements RegistryNodeFactory {
 
     @Override
     public Node getManagerNode(Lookup lookup) {
+//MyLOG.log("APPENG: TTTTT AppEngineRegistryNodeFactory.getManagerNode");            
+        
         return new AppEngineManagerNode(lookup);
     }
 
     @Override
     public Node getTargetNode(Lookup lookup) {
+//MyLOG.log("APPENG: TTTTT AppEngineRegistryNodeFactory.getTargetNode");            
+        
         return new AppEngineTargetNode();
     }
 }
