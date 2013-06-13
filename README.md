@@ -11,7 +11,7 @@ Released builds (zipped nbms) can be found here:
 
 https://code.google.com/p/nb-gaelyk-plugin/downloads/list
 
-Choose the file  _nbappengine-7.3-gae1.8.x.zip or nbappengine-7.3.1-gae1.8.x.zip_  from the list and download it.
+Choose the file  _nbappengine-7.3-gae1.8.x-1.3.0.zip or nbappengine-7.3.1-gae1.8.x-1.3.2.zip_  from the list and download it.
 The build is compiled with jdk7 but the source code doesn't contain specific for java 7 code. So it can be 
 compiled with jdk6.
 
