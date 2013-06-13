@@ -28,24 +28,17 @@ public class AppEngineTarget implements Target {
     private final String name;
 
     public AppEngineTarget(String name) {
-MyLOG.log("APPENG: TTTTT AppEngineTarget CONSTRUCTOR");            
-        
         this.name = name;
     }
 
     @Override
     public String getName() {
-MyLOG.log("APPENG: TTTTT AppEngineTarget getName");            
-
-        
         return name;
         
     }
 
     @Override
     public String getDescription() {
-MyLOG.log("APPENG: TTTTT AppEngineTarget getDescription");            
-        
         return getName();
     }
 

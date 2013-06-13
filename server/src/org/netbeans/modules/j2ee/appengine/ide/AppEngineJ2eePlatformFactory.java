@@ -19,7 +19,6 @@ package org.netbeans.modules.j2ee.appengine.ide;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 
@@ -30,8 +29,6 @@ public class AppEngineJ2eePlatformFactory extends J2eePlatformFactory {
 
     @Override
     public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager manager) {
-//MyLOG.log("APPENG: TTTTT AppEngineJ2eePlatformFactory.getJ2eePlatformImpl(manager)");            
-
         return new AppEngineJ2eePlatformImpl((AppEngineDeploymentManager) manager);
     }
 }

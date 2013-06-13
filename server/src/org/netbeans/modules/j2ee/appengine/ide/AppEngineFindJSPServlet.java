@@ -19,7 +19,6 @@ package org.netbeans.modules.j2ee.appengine.ide;
 
 import java.io.File;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.util.AppEngineJspNameUtil;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
@@ -36,23 +35,17 @@ public class AppEngineFindJSPServlet implements FindJSPServlet {
     public AppEngineFindJSPServlet(AppEngineDeploymentManager manager) {
         this.host = manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_HOST);
         this.port = Integer.valueOf(manager.getProperties().getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER));
-MyLOG.log("@@@@@@@ ------------- CONSTRUCTOR prop=" + System.getProperty("java.io.tmpdir"));        
     }
 
     @Override
     public File getServletTempDirectory(String moduleContextPath) {
         File temp = new File(System.getProperty("java.io.tmpdir"));
-MyLOG.log("@@@@@@@ ------------- " + System.getProperty("java.io.tmpdir"));
         //My if ((temp == null) || !temp.exists()) {
         if (!temp.exists()) {
-MyLOG.log("@@@@@@@ -------------  NOT EXISTS");
-            
             return null;
         }
 
         for (File folder : temp.listFiles()) {
-MyLOG.log("@@@@@@@ -------------  folder=" + folder.getName());
-            
             if (folder.getName().startsWith("Jetty_" + host + "_" + port)) {
                 return new File(folder, "jsp");
             }

@@ -67,9 +67,9 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
         this.uri = uri;
         this.properties = new AppEnginePluginProperties(this);
-        
+
         this.target = new AppEngineTarget(getProperties().getInstanceProperties().getProperty(InstanceProperties.DISPLAY_NAME_ATTR));
-        
+
         this.logger = AppEngineLogger.getInstance(uri);
     }
 
@@ -191,43 +191,26 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public Target[] getTargets() throws IllegalStateException {
-        MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getTargets()");
-
         return new Target[]{target};
     }
 
     @Override
     public TargetModuleID[] getRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getRunningModules()");            
-
         return new TargetModuleID[]{getModule()};
     }
 
     @Override
     public TargetModuleID[] getNonRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getNotRunningModules()");            
-
-//        return new TargetModuleID[]{getModule()};
         return new TargetModuleID[]{};
     }
 
     @Override
     public TargetModuleID[] getAvailableModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.getAvailableModules()");            
         return new TargetModuleID[]{};
-        /*        AppEngineModule m = getModule();
-         String s = m == null ? "NULL" : m.getModuleID();
-         if (m == null) {
-         return null;
-         }
-         return new TargetModuleID[]{m};
-         */
     }
 
     @Override
     public DeploymentConfiguration createConfiguration(DeployableObject arg0) throws InvalidModuleException {
-//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentManager.createConfiguration");            
-
         return null;
     }
 
@@ -253,6 +236,12 @@ public class AppEngineDeploymentManager implements DeploymentManager {
             } catch (InterruptedException ex) {
                 Exceptions.printStackTrace(ex);
             }
+        }
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
         }
 
         // Get progress object
@@ -282,7 +271,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public ProgressObject stop(TargetModuleID[] arg0) throws IllegalStateException {
-        //Projects p;
         return getProgress();
     }
 
@@ -332,7 +320,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public boolean isLocaleSupported(Locale arg0) {
-MyLOG.log("APPENGINE: !!! isLocaleSuppurted");
+        MyLOG.log("APPENGINE: !!! isLocaleSuppurted");
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

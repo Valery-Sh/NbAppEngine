@@ -87,9 +87,8 @@ public class AppEngineAntLogger extends AntLogger {
             }
             //====================================================
             dm.setServerNeedsRestart(false);            
-            
             if ( ! dm.isServerRunning() ) {
-                dm.setServerNeedsRestart(true);
+      //13.06          dm.setServerNeedsRestart(true);
                 dm.setSelected(p);
                 return;
             }

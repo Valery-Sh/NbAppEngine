@@ -125,6 +125,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
+                        <!--specification-version>2.9.2</specification-version-->
                         <implementation-version/>
                     </run-dependency>
                 </dependency>

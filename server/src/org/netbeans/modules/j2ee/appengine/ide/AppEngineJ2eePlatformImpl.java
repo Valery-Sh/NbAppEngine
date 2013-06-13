@@ -24,7 +24,6 @@ import java.util.Set;
 import org.netbeans.api.j2ee.core.Profile;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
@@ -42,8 +41,6 @@ public class AppEngineJ2eePlatformImpl extends J2eePlatformImpl {
     private AppEnginePluginProperties properties;
 
     public AppEngineJ2eePlatformImpl(AppEngineDeploymentManager manager) {
-//MyLOG.log("APPENG: TTTTT AppEngineJ2eePlatformImpl CONSTR");            
-        
         this.properties = manager.getProperties();
 
         // Load libraries
@@ -97,9 +94,6 @@ public class AppEngineJ2eePlatformImpl extends J2eePlatformImpl {
     public Set<Profile> getSupportedProfiles() {
         Set <Profile> result = new HashSet<Profile>();
         result.add(Profile.JAVA_EE_5);
-//        result.add(Profile.JAVA_EE_6_WEB);
-//        result.add(Profile.JAVA_EE_7_WEB);
-        
         return result;
     }
 

@@ -42,8 +42,6 @@ public class AppEngineDeploymentFactory implements DeploymentFactory {
 
     public synchronized static AppEngineDeploymentFactory getInstance() {
         if (null == instance) {
-MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory not created yet ");            
-            
             instance = new AppEngineDeploymentFactory();
             DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
             
@@ -56,20 +54,14 @@ MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory not created yet ");
 
     @Override
     public boolean handlesURI(String uri) {
-MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory.handleslsURI  " + uri);            
-        
         return uri != null && uri.startsWith(URI_PREFIX) ;
     }
 
     @Override
     public DeploymentManager getDeploymentManager(String uri, String username, String password) throws DeploymentManagerCreationException {
-MyLOG.log("APPENG: GGGGGGGGG Before handlesUri AppEngineDeploymentFactory.getDeploymentManager  " + uri);            
-        
         if (!handlesURI(uri)) {
             throw new DeploymentManagerCreationException("Invalid URI:" + uri);
         }
-MyLOG.log("APPENG: GGGGGGGGG After handlesUri AppEngineDeploymentFactory.getDeploymentManager  ");            
-        
         // Trying to fetch from cache
         DeploymentManager manager = managers.get(uri);
 

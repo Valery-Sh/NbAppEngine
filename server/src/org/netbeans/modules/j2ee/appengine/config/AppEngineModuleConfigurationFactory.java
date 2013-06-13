@@ -17,7 +17,6 @@
  */
 package org.netbeans.modules.j2ee.appengine.config;
 
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
@@ -30,8 +29,6 @@ public class AppEngineModuleConfigurationFactory implements ModuleConfigurationF
 
     @Override
     public ModuleConfiguration create(J2eeModule module) throws ConfigurationException {
-//MyLOG.log("APPENG: TTTTT AppEngineModuleConfigurationFactory create(module)");            
-        
         return new AppEngineModuleConfiguration(module);
     }
 }
