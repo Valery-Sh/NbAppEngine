@@ -51,6 +51,15 @@ public class AppEngineAntDeploymentProvider implements AntDeploymentProvider {
         xml = xml.replace("#appengine.http.port", manager.getProperties().getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER));
         xml = xml.replace("#appengine.debug.port", manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER));
         xml = xml.replace("#appengine.manager.uri", manager.getUri());
+        
+        String p = manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_DATANUCLEUS_ENHANCER);        
+        if ( "v2".equals(p)) {
+            p = "true";
+        } else {
+            p = "false";
+        }
+        xml = xml.replace("#appengine.jpa2", p);
+        
         // Create input stream
         InputStream is = new ByteArrayInputStream(xml.getBytes());
         if (is == null) {
