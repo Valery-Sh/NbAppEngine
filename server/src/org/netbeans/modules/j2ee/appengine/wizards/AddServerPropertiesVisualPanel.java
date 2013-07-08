@@ -88,7 +88,14 @@ public class AddServerPropertiesVisualPanel extends javax.swing.JPanel {
     public String getHost() {
         return host.getText();
     }
-
+    
+    public String getDataNucleusEnhancerVersion() {
+        if ( dataNucleusCheckBox.isSelected() ) {
+            return "v2";
+        } else {
+            return "v1";
+        }
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -104,6 +111,7 @@ public class AddServerPropertiesVisualPanel extends javax.swing.JPanel {
         http = new javax.swing.JSpinner();
         jLabel3 = new javax.swing.JLabel();
         debug = new javax.swing.JSpinner();
+        dataNucleusCheckBox = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(AddServerPropertiesVisualPanel.class, "AddServerPropertiesVisualPanel.jLabel1.text")); // NOI18N
         jLabel1.setToolTipText(org.openide.util.NbBundle.getMessage(AddServerPropertiesVisualPanel.class, "AddServerPropertiesVisualPanel.jLabel1.text")); // NOI18N
@@ -122,6 +130,10 @@ public class AddServerPropertiesVisualPanel extends javax.swing.JPanel {
         debug.setToolTipText(org.openide.util.NbBundle.getMessage(AddServerPropertiesVisualPanel.class, "AddServerPropertiesVisualPanel.jLabel3.text")); // NOI18N
         debug.setValue(8765);
 
+        dataNucleusCheckBox.setSelected(true);
+        dataNucleusCheckBox.setText("Use DataNucleus Access Platform 3.0 and JPA 2.0"); // NOI18N
+        dataNucleusCheckBox.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -130,17 +142,20 @@ public class AddServerPropertiesVisualPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
+                        .add(dataNucleusCheckBox)
+                        .add(0, 0, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
                         .add(jLabel1)
                         .add(18, 18, 18)
-                        .add(host, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE))
+                        .add(host))
                     .add(layout.createSequentialGroup()
                         .add(jLabel2)
                         .add(18, 18, 18)
-                        .add(http, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
+                        .add(http)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel3)
                         .add(18, 18, 18)
-                        .add(debug, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)))
+                        .add(debug)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -156,10 +171,13 @@ public class AddServerPropertiesVisualPanel extends javax.swing.JPanel {
                     .add(http, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel3)
                     .add(debug, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(18, 18, 18)
+                .add(dataNucleusCheckBox)
+                .addContainerGap(28, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox dataNucleusCheckBox;
     private javax.swing.JSpinner debug;
     private javax.swing.JTextField host;
     private javax.swing.JSpinner http;

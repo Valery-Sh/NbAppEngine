@@ -72,7 +72,7 @@ public class AddServerPropertiesPanel implements WizardDescriptor.Panel, ChangeL
         wizard.putProperty(InstanceProperties.HTTP_PORT_NUMBER, ((AddServerPropertiesVisualPanel) getComponent()).getHttpPort());
         wizard.putProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER, ((AddServerPropertiesVisualPanel) getComponent()).getDebugPort());
         wizard.putProperty(AppEnginePluginProperties.PROPERTY_HOST, ((AddServerPropertiesVisualPanel) getComponent()).getHost());
-
+        wizard.putProperty(AppEnginePluginProperties.PROPERTY_DATANUCLEUS_ENHANCER, ((AddServerPropertiesVisualPanel) getComponent()).getDataNucleusEnhancerVersion());
         return true;
     }
 

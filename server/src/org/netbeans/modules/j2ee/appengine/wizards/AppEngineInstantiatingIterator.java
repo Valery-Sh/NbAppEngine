@@ -111,12 +111,15 @@ public class AppEngineInstantiatingIterator implements WizardDescriptor.Instanti
         String url = AppEngineDeploymentFactory.URI_PREFIX + ":" + host + ":" + httpPort + "/" + displayName.hashCode();    // NOI18N
         String appengineLocation = (String) wizard.getProperty(AppEnginePluginProperties.PROPERTY_APPENGINE_LOCATION);
         
+        String enhancer = (String) wizard.getProperty(AppEnginePluginProperties.PROPERTY_DATANUCLEUS_ENHANCER);
         try {
             InstanceProperties ip = InstanceProperties.createInstanceProperties(url, null, null, displayName);
             ip.setProperty(AppEnginePluginProperties.PROPERTY_APPENGINE_LOCATION, appengineLocation);
             ip.setProperty(InstanceProperties.HTTP_PORT_NUMBER, Integer.toString(httpPort));
             ip.setProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER, Integer.toString(debugPort));
             ip.setProperty(AppEnginePluginProperties.PROPERTY_HOST, host);
+            ip.setProperty(AppEnginePluginProperties.PROPERTY_DATANUCLEUS_ENHANCER, enhancer);
+            
             result.add(ip);                        
         } catch (InstanceCreationException e){
             showInformation(e.getLocalizedMessage(), NbBundle.getMessage(AddServerLocationPanel.class, "MSG_INSTANCE_REGISTRATION_FAILED"));

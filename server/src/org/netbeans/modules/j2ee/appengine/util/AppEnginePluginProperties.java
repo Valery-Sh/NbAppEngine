@@ -1,19 +1,19 @@
 /**
- *  This file is part of Google App Engine suppport in NetBeans IDE.
+ * This file is part of Google App Engine suppport in NetBeans IDE.
  *
- *  Google App Engine suppport in NetBeans IDE is free software: you can
- *  redistribute it and/or modify it under the terms of the GNU General
- *  Public License as published by the Free Software Foundation, either
- *  version 2 of the License, or (at your option) any later version.
+ * Google App Engine suppport in NetBeans IDE is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
  *
- *  Google App Engine suppport in NetBeans IDE is distributed in the hope
- *  that it will be useful, but WITHOUT ANY WARRANTY; without even the
- *  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU General Public License for more details.
+ * Google App Engine suppport in NetBeans IDE is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Google App Engine suppport in NetBeans IDE.
- *  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * Google App Engine suppport in NetBeans IDE. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package org.netbeans.modules.j2ee.appengine.util;
 
@@ -28,6 +28,7 @@ import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.customizer.AppEngineCustomizerSupport;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.openide.filesystems.FileUtil;
@@ -42,10 +43,10 @@ public class AppEnginePluginProperties {
     public static final String PROPERTY_APPENGINE_LOCATION = "appengineLocation"; //NOI18N
     public static final String PROPERTY_HOST = "host"; //NOI18N
     public static final String DEBUG_PORT_NUMBER = "debug_port"; //NOI18N
+    public static final String PROPERTY_DATANUCLEUS_ENHANCER = "enhancerVersion"; //NOI18N
     public static final String PROP_JAVA_PLATFORM = "java_platform"; //NOI18N
     public static final String PROP_JAVADOCS = "javadocs";        // NOI18N
     public static final String PLAT_PROP_ANT_NAME = "platform.ant.name"; //NOI18N
-
     private InstanceProperties properties;
     private AppEngineDeploymentManager manager;
 
@@ -77,12 +78,12 @@ public class AppEnginePluginProperties {
     }
 
     public List<URL> getClasses() {
-        List<URL> list = new ArrayList<URL>();
-        List<String> names = new ArrayList<String>();
-        File serverDir = new File(getAppEngineLocation());
-
+//        List<URL> list = new ArrayList<URL>();
+//        List<String> names = new ArrayList<String>();
+//        File serverDir = new File(getAppEngineLocation());
+        return getClasses(getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_DATANUCLEUS_ENHANCER));
         // Add all jars
-        addJars(new File(serverDir, "lib"), list, names);
+      /*  addJars(new File(serverDir, "lib"), list, names);
         addJars(new File(serverDir, "lib/impl"), list, names);
         addJars(new File(serverDir, "lib/impl/agent"), list, names);
         addJars(new File(serverDir, "lib/shared"), list, names);
@@ -91,6 +92,52 @@ public class AppEnginePluginProperties {
         addJars(new File(serverDir, "lib/tools/orm"), list, names);
         addJars(new File(serverDir, "lib/user"), list, names);
         addJars(new File(serverDir, "lib/user/orm"), list, names);
+
+        return list;
+        */ 
+    }
+
+    public List<URL> getClasses(String enhancerVersion) {
+        List<URL> list = new ArrayList<URL>();
+        List<String> names = new ArrayList<String>();
+        File serverDir = new File(getAppEngineLocation());
+        if (enhancerVersion == null || "v1".equals(enhancerVersion)) {
+            addJars(new File(serverDir, "lib"), list, names);
+            addJars(new File(serverDir, "lib/impl"), list, names);
+            addJars(new File(serverDir, "lib/impl/agent"), list, names);
+            addJars(new File(serverDir, "lib/shared"), list, names);
+            addJars(new File(serverDir, "lib/shared/jsp"), list, names);
+            addJars(new File(serverDir, "lib/tools/jsp"), list, names);
+            addJars(new File(serverDir, "lib/tools/orm"), list, names);
+            addJars(new File(serverDir, "lib/user"), list, names);
+            addJars(new File(serverDir, "lib/user/orm"), list, names);
+        } else {
+            File libUser = new File(serverDir, "lib/user");
+            for (File file : libUser.listFiles()) {
+                try {
+                    if ( file.getName().startsWith("appengine-api-1.0-sdk") && FileUtil.isArchiveFile(file.toURI().toURL())) {
+                        list.add(FileUtil.urlForArchiveOrDir(file));
+                        names.add(file.getName());
+                    }
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger("global").log(Level.INFO, null, ex);
+                }
+            }//for
+            File file = new File(serverDir, "lib/appengine-tools-api.jar");
+            list.add(FileUtil.urlForArchiveOrDir(file));
+            names.add(file.getName());
+            
+/*for ( URL u : list){
+    MyLOG.log("LIBRARIES: list url=" + u.getPath());            
+}
+*/ 
+            addJars(new File(serverDir, "lib/shared"), list, names);
+            addJars(new File(serverDir, "lib/shared/jsp"), list, names);
+            addJars(new File(serverDir, "lib/opt/user/appengine-api-labs/v1"), list, names);
+            addJars(new File(serverDir, "lib/opt/user/appengine-endpoints/v1"), list, names);
+            addJars(new File(serverDir, "lib/opt/user/jsr107/v1"), list, names);
+            addJars(new File(serverDir, "lib/opt/user/datanucleus/v2"), list, names);
+        }
 
         return list;
     }
@@ -108,7 +155,6 @@ public class AppEnginePluginProperties {
         return AppEngineCustomizerSupport.tokenizePath(path);
     }
 
-    
     public void setJavadocs(List<URL> path) {
         properties.setProperty(PROP_JAVADOCS, AppEngineCustomizerSupport.buildPath(path));
         manager.getPlatform().notifyLibrariesChanged();
