@@ -18,7 +18,7 @@ Thus, it can be used for all minor versions of the NetBeans IDE ( 7.3 and 7.3.1 
 The plugin supports version 2.x of the DataNucleus plugin for App Engine, which corresponds 
 to DataNucleus Access Platform 3.0 and JPA 2.0.
 
-Early versions are:   _nbappengine-7.3-gae1.8.x-1.3.0.zip or nbappengine-7.3.1-gae1.8.x-1.3.2.zip_.
+Early versions are:   nbappengine-7.3-gae1.8.x-1.3.0.zip and nbappengine-7.3.1-gae1.8.x-1.3.2.zip_.
 
 Choose .zip file from the list and download it.
 
