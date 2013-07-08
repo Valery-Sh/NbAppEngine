@@ -119,16 +119,15 @@
                         <specification-version>1.12</specification-version>
                     </run-dependency>
                 </dependency>
-                <dependency>
+                <!--dependency>
                     <code-name-base>org.netbeans.modules.profiler</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
-                        <!--specification-version>2.9.2</specification-version-->
                         <implementation-version/>
                     </run-dependency>
-                </dependency>
+                </dependency-->
                 <dependency>
                     <code-name-base>org.netbeans.modules.project.ant</code-name-base>
                     <build-prerequisite/>

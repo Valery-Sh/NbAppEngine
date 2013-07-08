@@ -15,6 +15,7 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentFactory;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
+import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -39,7 +40,8 @@ public class AppEngineAntLogger extends AntLogger {
 
     @Override
     public String[] interestedInTargets(AntSession session) {
-        return new String[] {"-run-deploy-nb","debug","-do-profile"};
+        //return new String[] {"-run-deploy-nb","debug","-do-profile"};
+        return new String[] {"-run-deploy-nb","debug","-profile-check"};
 //        return AntLogger.ALL_TARGETS;
     }
 
@@ -54,7 +56,8 @@ public class AppEngineAntLogger extends AntLogger {
         //TODO delete after testing. Only those targets defined in interestedInTargets
         if ( !( "debug".equals(event.getTargetName()) 
                 || "-run-deploy-nb".equals(event.getTargetName())
-                || "-do-profile".equals(event.getTargetName()) ) ) {
+                //|| "-do-profile".equals(event.getTargetName()) ) ) {
+                || "-profile-check".equals(event.getTargetName()) ) ) {
             return;
         }
         
@@ -80,7 +83,8 @@ public class AppEngineAntLogger extends AntLogger {
                 dm.setDebuggedSet(false);
             }
             dm.setProfilingNeedsStop(false);
-            if ( ! "-do-profile".equals(event.getTargetName()) ) {
+            //if ( ! "-do-profile".equals(event.getTargetName()) ) {
+            if ( ! "-profile-check".equals(event.getTargetName()) ) {
                 if ( dm.getServerMode() == AppEngineServerMode.PROFILE ) {
                     dm.setProfilingNeedsStop(true);
                 }
@@ -107,11 +111,12 @@ public class AppEngineAntLogger extends AntLogger {
             AppEngineServerMode newMode = AppEngineServerMode.NORMAL;
             if ( "debug".equals(event.getTargetName()) ) {
                 newMode = AppEngineServerMode.DEBUG;
-            } else if ( "-do-profile".equals(event.getTargetName()) ) {
+            } else if ( "-profile-check".equals(event.getTargetName()) ) {
                 newMode = AppEngineServerMode.PROFILE;
             }
             
             if ( currentMode != newMode || newMode == AppEngineServerMode.PROFILE) {
+MyLOG.log("PRRRRRRRRRRRRRRRRRRRRR: setServerNeedsRestart(TRUE) event.targetName=" + event.getTargetName());                
                 dm.setServerNeedsRestart(true);
             } 
             
