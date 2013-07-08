@@ -27,7 +27,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
 import org.netbeans.modules.j2ee.appengine.AppEngineProgressObject;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.netbeans.modules.j2ee.appengine.ui.AppEngineProjectChooser;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
@@ -128,18 +127,14 @@ public class AppEngineStartServer extends StartServer {
 
     @Override
     public ProgressObject stopDeploymentManager() {
-MyLOG.log("PRRRRRRRRRRRRRRRRRRR stopDeploymentManager isProfilingNeedsStop:" + manager.isProfilingNeedsStop());
-        if (manager.isProfilingNeedsStop()) {
+//        if (manager.isProfilingNeedsStop()) {
 //            StopAction action = StopAction.getInstance();
 //            if (action.isEnabled()) {
-MyLOG.log("PRRRRRRRRRRRRRRRRRRR stopDeploymentManager isProfilingNeedsStop==TRUU performAction");
-                
                // action.performAction();
 //            }
-        }
+//        }
         Process process = manager.getProcess();
         ExecutorService executor = manager.getExecutor();
-MyLOG.log("PRRRRRRRRRRRRRRRRRRR KILL PROCESS ");
 
         // Kill process
         if (null != process) {

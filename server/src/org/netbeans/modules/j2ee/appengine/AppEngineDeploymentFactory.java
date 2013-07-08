@@ -36,8 +36,6 @@ public class AppEngineDeploymentFactory implements DeploymentFactory {
     private static AppEngineDeploymentFactory instance = null;
 
     private AppEngineDeploymentFactory() {
-//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory CONSTR ");            
-        
     }
 
     public synchronized static AppEngineDeploymentFactory getInstance() {
@@ -46,8 +44,6 @@ public class AppEngineDeploymentFactory implements DeploymentFactory {
             DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
             
         }
-//MyLOG.log("APPENG: GGGGGGGGG AppEngineDeploymentFactory created allready ");            
-
         return instance;
     }
 

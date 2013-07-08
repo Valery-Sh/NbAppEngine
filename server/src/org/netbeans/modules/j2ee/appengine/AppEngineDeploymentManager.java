@@ -63,13 +63,9 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     private boolean profilingNeedsStop;
 
     public AppEngineDeploymentManager(String uri) {
-//MyLOG.log("APPENG:MMMMMM AppEngineDeploymentManager CONSTRUCTOR ");            
-
         this.uri = uri;
         this.properties = new AppEnginePluginProperties(this);
-
         this.target = new AppEngineTarget(getProperties().getInstanceProperties().getProperty(InstanceProperties.DISPLAY_NAME_ATTR));
-
         this.logger = AppEngineLogger.getInstance(uri);
     }
 
@@ -320,7 +316,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public boolean isLocaleSupported(Locale arg0) {
-        MyLOG.log("APPENGINE: !!! isLocaleSuppurted");
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

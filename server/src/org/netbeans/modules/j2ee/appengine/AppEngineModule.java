@@ -45,9 +45,7 @@ public class AppEngineModule implements TargetModuleID {
 
     @Override
     public String getModuleID() {
-//MyLOG.log("AppEngineModule.getModuleID() context="+ contextRoot);    
         return getWebURL() + "/" + contextRoot;
-//        return NbBundle.getMessage(AppEngineModule.class, "TITLE_Application") + "/" + contextRoot;
     }
 
     @Override

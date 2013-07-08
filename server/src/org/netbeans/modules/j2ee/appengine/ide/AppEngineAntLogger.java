@@ -15,7 +15,6 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentFactory;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
-import org.netbeans.modules.j2ee.appengine.MyLOG;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -116,7 +115,6 @@ public class AppEngineAntLogger extends AntLogger {
             }
             
             if ( currentMode != newMode || newMode == AppEngineServerMode.PROFILE) {
-MyLOG.log("PRRRRRRRRRRRRRRRRRRRRR: setServerNeedsRestart(TRUE) event.targetName=" + event.getTargetName());                
                 dm.setServerNeedsRestart(true);
             } 
             
