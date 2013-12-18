@@ -7,6 +7,14 @@
             <suite-component/>
             <module-dependencies>
                 <dependency>
+                    <code-name-base>org.apache.commons.httpclient</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>3.1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.apache.tools.ant.module</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -21,7 +29,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.24.1</specification-version>
+                        <specification-version>1.27.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -48,7 +56,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.36.1</specification-version>
+                        <specification-version>1.39.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -74,13 +82,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
-                        <specification-version>1.30</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.modules.j2ee.ant</code-name-base>
-                    <run-dependency>
-                        <specification-version>1.27.1.1</specification-version>
+                        <specification-version>1.39.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -119,22 +121,13 @@
                         <specification-version>1.12</specification-version>
                     </run-dependency>
                 </dependency>
-                <!--dependency>
-                    <code-name-base>org.netbeans.modules.profiler</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>2</release-version>
-                        <implementation-version/>
-                    </run-dependency>
-                </dependency-->
                 <dependency>
                     <code-name-base>org.netbeans.modules.project.ant</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.51.1</specification-version>
+                        <specification-version>1.56.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -143,7 +136,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.20</specification-version>
+                        <specification-version>1.44.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -174,11 +167,20 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.spi.debugger.ui</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>2.40.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.actions</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.29.1</specification-version>
+                        <specification-version>6.32.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -202,7 +204,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>1.30.1</specification-version>
+                        <specification-version>1.33.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>

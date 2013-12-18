@@ -19,9 +19,12 @@ package org.netbeans.modules.j2ee.appengine;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import javax.enterprise.deploy.model.DeployableObject;
+import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
@@ -31,17 +34,29 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedException;
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
+import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.netbeans.api.debugger.DebuggerManager;
+import org.netbeans.api.debugger.Session;
+import org.netbeans.api.extexecution.ExternalProcessSupport;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.j2ee.appengine.ide.AppEngineDeployer;
+
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineJ2eePlatformImpl;
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineLogger;
-import org.netbeans.modules.j2ee.appengine.ide.AppEngineServerMode;
+
 import org.netbeans.modules.j2ee.appengine.ide.AppEngineStartServer;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
+import org.netbeans.modules.j2ee.appengine.util.Utils;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.DeploymentContext;
+import org.netbeans.spi.project.ActionProvider;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.RequestProcessor;
 
 /**
  * @author Michal Mocnak
@@ -51,16 +66,20 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     private final String uri;
     private final AppEngineTarget target;
     private final AppEngineLogger logger;
-    private AppEngineModule module;
+    private AppEngineTargetModuleID module;
     private ProgressObject progress;
-    private AppEnginePluginProperties properties;
+    private final AppEnginePluginProperties properties;
     private AppEngineJ2eePlatformImpl platform;
     private Process process;
     private ExecutorService executor;
     private Project selected;
-    private boolean debuggedSet;
-    private boolean serverNeedsRestart;
-    private boolean profilingNeedsStop;
+    public boolean restartedAction;
+
+    //private boolean knownWebApp;
+
+    public String pname() {
+        return getSelected() == null ? " NULL " : getSelected().getProjectDirectory().getName();
+    }
 
     public AppEngineDeploymentManager(String uri) {
         this.uri = uri;
@@ -69,18 +88,23 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         this.logger = AppEngineLogger.getInstance(uri);
     }
 
+
     public String getUri() {
         return uri;
     }
 
-    public AppEngineModule getModule() {
+    public boolean isRestartedAction() {
+        return restartedAction;
+    }
+
+    public AppEngineTargetModuleID getTargetModuleID() {
         String c = "null";
         if (selected != null) {
             c = selected.getProjectDirectory().getName();
         } else {
             return null;
         }
-        module = new AppEngineModule(getTarget(),
+        module = new AppEngineTargetModuleID(getTarget(),
                 getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_HOST),
                 Integer.valueOf(getProperties().getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER)),
                 c);
@@ -94,16 +118,16 @@ public class AppEngineDeploymentManager implements DeploymentManager {
      */
     public ProgressObject getProgress() {
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
-        if (startServer.getMode() == AppEngineServerMode.DEBUG && startServer.isRunning()) {
-            progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.DEBUG);
+        if (startServer.getMode() == Deployment.Mode.DEBUG && startServer.isRunning()) {
+            progress = new AppEngineProgressObject(getTargetModuleID(), false, Deployment.Mode.DEBUG);
         } else if (null == progress) {
-            progress = new AppEngineProgressObject(getModule(), false, AppEngineServerMode.NORMAL);
+            progress = new AppEngineProgressObject(getTargetModuleID(), false, Deployment.Mode.RUN);
         }
 
         return progress;
     }
 
-    public AppEngineServerMode getServerMode() {
+    public Deployment.Mode getServerMode() {
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
         return startServer.getMode();
     }
@@ -137,38 +161,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         this.selected = selected;
     }
 
-    public boolean isDebuggedSet() {
-        return debuggedSet;
-    }
-
-    public void setDebuggedSet(boolean debuggedSet) {
-        this.debuggedSet = debuggedSet;
-    }
-
-    public boolean isProfilingNeedsStop() {
-        return profilingNeedsStop;
-    }
-
-    public void setProfilingNeedsStop(boolean profilingNeedsStop) {
-        this.profilingNeedsStop = profilingNeedsStop;
-    }
-
-    public boolean isServerNeedsRestart() {
-        return serverNeedsRestart;
-    }
-
-    public void setServerNeedsRestart(boolean needsRestart) {
-        this.serverNeedsRestart = needsRestart;
-    }
-
-    /*    public Project getOldSelected() {
-     return oldSelected;
-     }
-
-     public void setOldSelected(Project oldSelected) {
-     this.oldSelected = oldSelected;
-     }
-     */
     public Process getProcess() {
         return process;
     }
@@ -192,62 +184,190 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public TargetModuleID[] getRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-        return new TargetModuleID[]{getModule()};
+        Utils.out("--- DEPLOYMENTMANAGER: getRunningModules" + " --- " + pname());
+
+        return new TargetModuleID[]{getTargetModuleID()};
     }
 
     @Override
     public TargetModuleID[] getNonRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
+        Utils.out("--- DEPLOYMENTMANAGER: getNonRunningModules" + " --- " + pname());
+
         return new TargetModuleID[]{};
     }
 
     @Override
     public TargetModuleID[] getAvailableModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
+        Utils.out("--- DEPLOYMENTMANAGER: getAvailableModules" + " --- " + pname());
+
         return new TargetModuleID[]{};
     }
 
     @Override
     public DeploymentConfiguration createConfiguration(DeployableObject arg0) throws InvalidModuleException {
+        Utils.out("--- DEPLOYMENTMANAGER: createConfiguration" + " --- " + pname());
+
         return null;
     }
 
-    /**
-     * 15.04.2013 the copy before NbAppEngine-15-04-2013.zip
-     *
-     * @param target
-     * @param file
-     * @param plan
-     * @return
-     * @throws IllegalStateException
-     */
+    protected ProgressObject restartNormalAction() {
+
+        Utils.out("--- DEPLOYMENTMANAGER restartNormalAction 1");
+        new RequestProcessor().post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                stopServer();
+                ActionProvider ap = selected.getLookup().lookup(ActionProvider.class);
+                restartedAction = true;
+                Utils.out("--- DEPLOYMENTMANAGER distributer invoke Run action");
+                ap.invokeAction(ActionProvider.COMMAND_RUN, selected.getLookup());
+            }
+        });
+        return new AppEngineProgressObject(getTargetModuleID(), true, Deployment.Mode.RUN, CommandType.DISTRIBUTE);
+    }
+    
+    protected ProgressObject restartDebugAction() {
+
+        //AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
+
+
+        Utils.out("--- DEPLOYMENTMANAGER restartDebugAction 1");
+        RequestProcessor rp = new RequestProcessor();
+        rp.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                stopServer();
+                Session ses = DebuggerManager.getDebuggerManager().getCurrentSession();
+                Utils.out("--- DEPLOYMENTMANAGER debugger session = " + ses);
+                //ses.kill();
+                ActionProvider ap = selected.getLookup().lookup(ActionProvider.class);
+                restartedAction = true;
+                Utils.out("--- DEPLOYMENTMANAGER distributer invoke debug action");
+                ap.invokeAction(ActionProvider.COMMAND_DEBUG, selected.getLookup());
+            }
+        });
+        return new AppEngineProgressObject(getTargetModuleID(), true, Deployment.Mode.DEBUG, CommandType.DISTRIBUTE);
+    }
+
+    protected ProgressObject restartProfileAction() {
+
+
+        Utils.out("--- DEPLOYMENTMANAGER restartProfileAction 1");
+        RequestProcessor rp = new RequestProcessor();
+        rp.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                stopServer();
+                ActionProvider ap = selected.getLookup().lookup(ActionProvider.class);
+                restartedAction = true;
+                Utils.out("--- DEPLOYMENTMANAGER distributer invoke Profile action");
+                ap.invokeAction(ActionProvider.COMMAND_PROFILE, selected.getLookup());
+            }
+        });
+        return new AppEngineProgressObject(getTargetModuleID(), true, Deployment.Mode.PROFILE, CommandType.DISTRIBUTE);
+    }
+    
     @Override
     public ProgressObject distribute(Target[] target, File file, File plan) throws IllegalStateException {
-        String fn = file == null ? "NULL" : file.getName(); //My to delete
+        Utils.out("--- DEPLOYMENTMANAGER DISTRIBUTE time=" + new Date());
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
-        // Wait to Google App Engine will be initialized
-        while ((!logger.contains("Dev App Server is now running"))
-                && (!logger.contains("The server is running"))
-                && !logger.contains("Address already in use")) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+        startServer.setServerNeedsRestart(true);
+        if (restartedAction) {
+            Utils.out("--- DEPLOYMENTMANAGER DISTRIBUTE redeploy == true time=" + new Date());
+            restartedAction = false;
+//            startServer.setExtendedMode(null);
+            getProperties().getInstanceProperties().setProperty("deployedProject", selected.getProjectDirectory().getPath());
+           return getProgress();
         }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        FileObject fo = FileUtil.toFileObject(file);
 
-        // Get progress object
-        ProgressObject p = startServer.getCurrentProgressObject();
-        // If the deployer wasn't invoked return
-        if (!(p instanceof AppEngineDeployer)) {
-            return p;
+        Project distrProject = FileOwnerQuery.getOwner(fo);
+        if (distrProject.equals(selected)) {
+            getProperties().getInstanceProperties().setProperty("deployedProject", distrProject.getProjectDirectory().getPath());
+            return new AppEngineProgressObject(getTargetModuleID(), false, startServer.getMode(), CommandType.DISTRIBUTE);            
         }
-        // Get checksums
-        return getProgress();
+        //
+        // The server started with invalid web project. We must restart it.
+        //
+        if (Deployment.Mode.RUN.equals(startServer.getMode())) {
+            Utils.out("--- DEPLOYMENTMANAGER DISTRIBUTE. 1");
+            
+//            ProgressObject po = new AppEngineProgressObject(getTargetModuleID(), false, AppEngineServerMode.NORMAL, CommandType.DISTRIBUTE);
+            selected = distrProject;
+            
+//            if (selected.equals(distrProject)) {
+                // web app is correctly selected
+//                startServer.setExtendedMode(null);
+//            } else {
+                // we must restart the whole action 
+//                selected = distrProject;
+//                startServer.setExtendedMode(null);
+                restartedAction = true;
+                return restartNormalAction();
+
+//            }
+//            return po;
+            
+        } else if (Deployment.Mode.DEBUG.equals(startServer.getMode())) {
+            //
+            // startDebugging has alredy been issued just before distribute.
+            // We must check whether we guess the web app used to start the server.
+            // 
+//            ProgressObject po = new AppEngineProgressObject(getTargetModuleID(), false, AppEngineServerMode.DEBUG, CommandType.DISTRIBUTE);
+//            if (selected.equals(distrProject)) {
+                // web app is correctly selected
+//                selected = distrProject;
+//                startServer.setExtendedMode(null);
+//            } else {
+                // we must restart the whole action 
+                selected = distrProject;
+//                startServer.setExtendedMode(null);
+                restartedAction = true;
+                return restartDebugAction();
+
+//            }
+//            return po;
+//            selected = distrProject;
+//            return startInNomalMode();
+        } else if (Deployment.Mode.PROFILE.equals(startServer.getMode())) {
+            //
+            // startDebugging has alredy been issued just before distribute.
+            // We must check whether we guess the web app used to start the server.
+            // 
+//            ProgressObject po = new AppEngineProgressObject(getTargetModuleID(), false, AppEngineServerMode.DEBUG, CommandType.DISTRIBUTE);
+//            if (selected.equals(distrProject)) {
+                // web app is correctly selected
+//                selected = distrProject;
+//                startServer.setExtendedMode(null);
+//            } else {
+                // we must restart the whole action 
+                selected = distrProject;
+//                startServer.setExtendedMode(null);
+                restartedAction = true;
+                return restartProfileAction();
+
+//            }
+//            return po;
+//            selected = distrProject;
+//            return startInNomalMode();
+        }
+        return null;
     }
 
     @Override
@@ -262,12 +382,64 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public ProgressObject start(TargetModuleID[] arg0) throws IllegalStateException {
+        Utils.out("--- DEPLOYMENTMANAGER: start" + " --- " + pname());
+
         return getProgress();
     }
 
     @Override
     public ProgressObject stop(TargetModuleID[] arg0) throws IllegalStateException {
+        Utils.out("--- DEPLOYMENTMANAGER: stop" + " --- " + pname());
+
         return getProgress();
+    }
+
+    public void stopServer() {
+        Utils.out("--- DEPLOYMENTMANAGER stopServer" + " --- " + pname());
+
+        Process process = getProcess();
+        ExecutorService executor = getExecutor();
+
+        // Kill process
+        if (null != process) {
+            //Utils.out("--- DEPLOYMENTMANAGER stopServer process NOT null " + " --- " + pname());
+
+            // Kill process
+            ExternalProcessSupport.destroy(process, new HashMap<String, String>());
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+            }
+            // Set to null
+            setProcess(null);
+        }
+
+        // Shutdown executor
+        if (null != executor) {
+            //Utils.out("--- DEPLOYMENTMANAGER stopServer executor NOT null " + " --- " + pname());
+
+            // Shutdown
+            executor.shutdownNow();
+            // Set to null
+            setExecutor(null);
+        }
+        AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
+        while (startServer.isRunning()) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        Utils.out("--- DEPLOYMENTMANAGER stopServer() isRunning()=" + startServer.isRunning());
+
+        startServer.setMode(Deployment.Mode.RUN);
+//        startServer.setExtendedMode(AppEngineServerMode.NORMAL);
+        //selected = null;
+
+        //return null;
+        //return (current = new AppEngineProgressObject(manager.getTargetModuleID(), false, mode));
     }
 
     @Override
@@ -336,6 +508,17 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
 //    @Override
     public ProgressObject redeploy(TargetModuleID[] tmids, DeploymentContext deployment) {
+        Utils.out("--- DEPLOYMENTMANAGER: redeploy 2" + " --- " + pname());
+        //return null;
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public class GaeProgressListener implements ProgressListener {
+
+        @Override
+        public void handleProgressEvent(ProgressEvent pe) {
+            Utils.out("GaeProgressListener " + pe.toString());
+        }
+
     }
 }

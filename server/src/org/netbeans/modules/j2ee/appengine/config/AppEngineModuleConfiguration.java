@@ -17,15 +17,20 @@
  */
 package org.netbeans.modules.j2ee.appengine.config;
 
+import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentFactory;
 import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfiguration;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -38,18 +43,26 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
     private final J2eeModule module;
     private final File appengineXmlFile;
     private final String name;
+    private int flag;
 
     public AppEngineModuleConfiguration(J2eeModule module) {
         this.module = module;
         this.appengineXmlFile = module.getDeploymentConfigurationFile("WEB-INF/appengine-web.xml");
         this.name = appengineXmlFile.getParentFile().getParentFile().getParentFile().getName();
+        flag = 0;
         checkAppEngineXml();
-
     }
 
     @Override
-    public Lookup getLookup() {
+    synchronized public Lookup getLookup() {
+        register();        
         return Lookups.fixed(this);
+    }
+
+    synchronized public void register() {
+        long dt = System.currentTimeMillis();
+        Project p = FileOwnerQuery.getOwner(FileUtil.toFileObject(appengineXmlFile));
+        AppEngineDeploymentFactory.getInstance().usedModuleChanged(p, dt);
     }
 
     @Override
@@ -102,7 +115,7 @@ public class AppEngineModuleConfiguration implements ModuleConfiguration, Contex
 
     @Override
     public void setContextRoot(String contextRoot) throws ConfigurationException {
-        // Nothing to do
         String m = module == null ? "NULL" : module.getUrl();
     }
+
 }

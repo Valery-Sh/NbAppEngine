@@ -24,14 +24,14 @@ import org.openide.util.NbBundle;
 /**
  * @author Michal Mocnak
  */
-public class AppEngineModule implements TargetModuleID {
+public class AppEngineTargetModuleID implements TargetModuleID {
 
     private AppEngineTarget target;
     private String hostname;
     private int port;
     private String contextRoot;
 
-    public AppEngineModule(AppEngineTarget target, String hostname, int port, String contextRoot) {
+    public AppEngineTargetModuleID(AppEngineTarget target, String hostname, int port, String contextRoot) {
         this.target = target;
         this.hostname = hostname;
         this.port = port;

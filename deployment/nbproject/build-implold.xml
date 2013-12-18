@@ -3,7 +3,7 @@
 *** GENERATED FROM project.xml - DO NOT EDIT  ***
 ***         EDIT ../build.xml INSTEAD         ***
 -->
-<project name="org.netbeans.modules.j2ee.appengine.kit-impl" basedir="..">
+<project name="org.netbeans.modules.j2ee.appengine.deployment-impl" basedir="..">
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
             <not>

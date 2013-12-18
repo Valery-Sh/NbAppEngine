@@ -38,11 +38,15 @@ import org.openide.modules.InstalledFileLocator;
  * @author Michal Mocnak
  */
 public class AppEnginePluginProperties {
+    
+    public static final String LAST_WEBAPP_PATH = "lastWebAppPath";
 
     public static final String PROPERTY_DISPLAY_NAME = InstanceProperties.DISPLAY_NAME_ATTR;
     public static final String PROPERTY_APPENGINE_LOCATION = "appengineLocation"; //NOI18N
     public static final String PROPERTY_HOST = "host"; //NOI18N
     public static final String DEBUG_PORT_NUMBER = "debug_port"; //NOI18N
+    
+    public static final String PORT_NUMBER = InstanceProperties.HTTP_PORT_NUMBER;
     public static final String PROPERTY_DATANUCLEUS_ENHANCER = "enhancerVersion"; //NOI18N
     public static final String PROP_JAVA_PLATFORM = "java_platform"; //NOI18N
     public static final String PROP_JAVADOCS = "javadocs";        // NOI18N

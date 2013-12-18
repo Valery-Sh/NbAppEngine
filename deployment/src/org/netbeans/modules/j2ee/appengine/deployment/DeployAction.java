@@ -29,11 +29,16 @@ import org.openide.util.actions.NodeAction;
  */
 public final class DeployAction extends NodeAction {
 
+    @Override
     protected void performAction(Node[] activatedNodes) {
         assert activatedNodes.length == 1;
-        Utils.deploy(getProject(activatedNodes));
+        Project p = getProject(activatedNodes);
+        DeployUtils.out("Project path=" + p.getProjectDirectory().getPath());        
+        
+        DeployUtils.deploy(p);
     }
 
+    @Override
     public String getName() {
         return NbBundle.getMessage(DeployAction.class, "CTL_DeployAction");
     }
@@ -43,6 +48,7 @@ public final class DeployAction extends NodeAction {
         return "org/netbeans/modules/j2ee/appengine/editor/engine.png";
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
@@ -61,11 +67,13 @@ public final class DeployAction extends NodeAction {
         if (proj == null){
             return false;
         }
-        return Utils.isAppEngineProject(proj) && Utils.appCFGAvailable(proj);
+       // DeployUtils.out("Project path=" + proj.getProjectDirectory().getPath());        
+        return DeployUtils.isAppEngineProject(proj) && DeployUtils.appCFGAvailable(proj);
     }
 
     private Project getProject(Node[] nodes) {
         Node n = nodes[0];
+        //DeployUtils.out("getProject path=" +n.getLookup().lookup(Project.class).getProjectDirectory().getPath());
         return n.getLookup().lookup(Project.class);
     }
 }

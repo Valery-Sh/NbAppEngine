@@ -66,12 +66,15 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
         initComponents();
         setName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "TITLE_ServerLocation"));
         oc4jHomeTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 fireChangeEvent();
             }
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 fireChangeEvent();
             }
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 fireChangeEvent();
             }                    

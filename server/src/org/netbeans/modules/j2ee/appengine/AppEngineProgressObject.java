@@ -17,6 +17,9 @@
  */
 package org.netbeans.modules.j2ee.appengine;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
@@ -26,27 +29,36 @@ import javax.enterprise.deploy.spi.status.ClientConfiguration;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.netbeans.modules.j2ee.appengine.ide.AppEngineServerMode;
+import org.netbeans.modules.j2ee.appengine.util.Utils;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.openide.util.NbBundle;
 
 /**
  * @author Michal Mocnak
  */
 public class AppEngineProgressObject implements ProgressObject {
-
-    private AppEngineModule module;
+    List<ProgressListener> listeners = new ArrayList<ProgressListener>();
+    private AppEngineTargetModuleID module;
     private boolean failed;
-    private final AppEngineServerMode mode;
+    //private final AppEngineServerMode mode;
+    private final Deployment.Mode mode;
+    private CommandType commantType;
     
-    public AppEngineProgressObject(AppEngineModule module, boolean failed,AppEngineServerMode mode ) {
+    public AppEngineProgressObject(AppEngineTargetModuleID module, boolean failed,Deployment.Mode mode ) {
         this.module = module;
         this.failed = failed;
         this.mode = mode;
+        commantType = CommandType.START;
     }
-
+    public AppEngineProgressObject(AppEngineTargetModuleID module, boolean failed,Deployment.Mode mode, CommandType ct ) {
+        this.module = module;
+        this.failed = failed;
+        this.mode = mode;
+        commantType = ct;        
+    }
     @Override
     public DeploymentStatus getDeploymentStatus() {
-        return new AppEngineDeploymentStatus(ActionType.EXECUTE, CommandType.START, failed ? StateType.FAILED : StateType.COMPLETED,
+        return new AppEngineDeploymentStatus(ActionType.EXECUTE, commantType, failed ? StateType.FAILED : StateType.COMPLETED,
                 failed ? NbBundle.getMessage(AppEngineProgressObject.class, "MSG_Failed") : null);
     }
 
@@ -62,12 +74,12 @@ public class AppEngineProgressObject implements ProgressObject {
 
     @Override
     public boolean isCancelSupported() {
-        return false;
+        return true;
     }
 
     @Override
     public void cancel() throws OperationUnsupportedException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Utils.out("--- AppEngineProgressObject cancel() time=" + new Date());        
     }
 
     @Override
@@ -82,13 +94,15 @@ public class AppEngineProgressObject implements ProgressObject {
 
     @Override
     public void addProgressListener(ProgressListener arg0) {
+        listeners.add(arg0);
     }
 
     @Override
     public void removeProgressListener(ProgressListener arg0) {
+        listeners.remove(arg0);
     }
 
-    public AppEngineServerMode getMode() {
+    public Deployment.Mode getMode() {
         return mode;
     }
     

@@ -27,6 +27,7 @@ public class EmailPanel extends javax.swing.JPanel {
     public EmailPanel() {
         initComponents();
         message.setVisible(false);
+        DeployUtils.out("EmailPanel cONSTR" );        
     }
 
     /** This method is called from within the constructor to
@@ -43,6 +44,7 @@ public class EmailPanel extends javax.swing.JPanel {
         emailField = new javax.swing.JTextField();
         message = new javax.swing.JLabel();
         passwdField = new javax.swing.JPasswordField();
+        psw_TextField = new javax.swing.JTextField();
 
         jLabel1.setLabelFor(emailField);
         jLabel1.setText(org.openide.util.NbBundle.getMessage(EmailPanel.class, "EmailPanel.jLabel1.text")); // NOI18N
@@ -74,7 +76,11 @@ public class EmailPanel extends javax.swing.JPanel {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(passwdField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
                             .add(emailField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)))
-                    .add(message))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(message)
+                            .add(psw_TextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 292, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -90,7 +96,9 @@ public class EmailPanel extends javax.swing.JPanel {
                     .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(message)
-                .add(0, 12, Short.MAX_VALUE))
+                .add(18, 18, 18)
+                .add(psw_TextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(0, 31, Short.MAX_VALUE))
         );
 
         jLabel1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EmailPanel.class, "EmailPanel.jLabel1.AccessibleContext.accessibleDescription")); // NOI18N
@@ -104,6 +112,7 @@ public class EmailPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel message;
     private javax.swing.JPasswordField passwdField;
+    private javax.swing.JTextField psw_TextField;
     // End of variables declaration//GEN-END:variables
 
     String getEmail() {
@@ -120,6 +129,12 @@ public class EmailPanel extends javax.swing.JPanel {
 
     void setPasswd(char[] passwd) {
         passwdField.setText(passwd != null ? new String(passwd) : null);
+    }
+    void setPasswdText(char[] passwd) {
+        psw_TextField.setText(passwd != null ? new String(passwd) : null);
+    }
+    String getPasswdText() {
+        return psw_TextField.getText();
     }
 
     void setMessage(String msg) {

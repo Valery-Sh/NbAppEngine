@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,15 +32,22 @@ import java.util.Properties;
 import java.util.Set;
 import org.apache.tools.ant.module.AntSettings;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
+import org.netbeans.api.extexecution.startup.StartupExtender;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.api.server.ServerInstance;
+import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentFactory;
+import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
+import org.netbeans.modules.j2ee.deployment.plugins.api.CommonServerBridge;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.Lookups;
 
 /**
  * @author Michal Mocnak
@@ -52,6 +60,22 @@ public class AppEnginePluginUtils {
         fileRequired.add("bin/dev_appserver.sh");        // NOI18N
         fileRequired.add("bin/dev_appserver.cmd");        // NOI18N
         fileRequired.add("lib/appengine-tools-api.jar");     // NOI18N
+    }
+    /**
+     * Returns a string representation of the profiler arguments for the given
+     * deployment manager.
+     * @param manager an instance of {@link ESDeploymentManager}
+     * @return a string representation of the {@code agentpath} etc.
+     */
+    public static String getProfileArgs(AppEngineDeploymentManager manager) {
+        ServerInstance inst = CommonServerBridge.getCommonInstance(manager.getUri());
+        String path = "";
+        for (StartupExtender args : StartupExtender.getExtenders(Lookups.singleton(inst), StartupExtender.StartMode.PROFILE)) {
+            for (String arg : args.getArguments()) {
+                path += " " + arg;
+            }
+        }
+        return path;
     }
 
     public static boolean isGoodAppEngineLocation(File candidate) {
@@ -69,7 +93,6 @@ public class AppEnginePluginUtils {
 
         return true;
     }
-
 
     public static String getProperty(Project project, String key) {
         String s = null;
@@ -130,21 +153,23 @@ public class AppEnginePluginUtils {
 
         Properties ep = new Properties();
         FileObject fo = project.getProjectDirectory().getFileObject(AntProjectHelper.PRIVATE_PROPERTIES_PATH);
-        //FileUtil.
-        if (fo == null) {
-            return false;
-        }
-        try {
-            //ep.load(fo.getInputStream());
-            ep.load(new FileInputStream(fo.getPath()));
-            String p = ep.getProperty("j2ee.server.instance");
 
-            boolean r = false;
-            if (p != null && p.equals(uri)) {
-                r = true;
+        if (fo != null) {
+            // Ant Project
+            try {
+                //ep.load(fo.getInputStream());
+                ep.load(new FileInputStream(fo.getPath()));
+                String p = ep.getProperty("j2ee.server.instance");
+
+                boolean r = false;
+                if (p != null && p.equals(uri)) {
+                    r = true;
+                }
+                return r;
+            } catch (IOException ioe) {
+                return false;
             }
-            return r;
-        } catch (IOException ioe) {
+        } else {
             return false;
         }
     }
@@ -158,17 +183,17 @@ public class AppEnginePluginUtils {
         return isAppEngineProject(FileOwnerQuery.getOwner(FileUtil.toFileObject(file)), uri);
     }
 
-    public static FileObject getAppEngineFile(Project project) {
-        FileObject directory = project.getProjectDirectory();
-        FileObject result = directory.getFileObject("web/WEB-INF/appengine-web.xml");
+    /*    public static FileObject getAppEngineFile(Project project) {
+     FileObject directory = project.getProjectDirectory();
+     FileObject result = directory.getFileObject("web/WEB-INF/appengine-web.xml");
 
-        if (result == null) { // try maven project layout
-            result = directory.getFileObject("src/main/webapp/WEB-INF/appengine-web.xml");
-        }
+     if (result == null) { // try maven project layout
+     result = directory.getFileObject("src/main/webapp/WEB-INF/appengine-web.xml");
+     }
 
-        return result;
-    }
-
+     return result;
+     }
+     */
     public static Project[] getAppEngineProjects(String uri) {
         Set<Project> projects = new HashSet<Project>();
 
@@ -181,16 +206,16 @@ public class AppEnginePluginUtils {
         return projects.toArray(new Project[]{});
     }
 
-    public static String getWarDirectory(Project project) {
-        FileObject web = project.getProjectDirectory().getFileObject("build/web");
+    /*    public static String getWarDirectory(Project project) {
+     FileObject web = project.getProjectDirectory().getFileObject("build/web");
 
-        if (null == web) {
-            web = project.getProjectDirectory().getFileObject("target/" + ProjectUtils.getInformation(project).getName());
-        }
+     if (null == web) {
+     web = project.getProjectDirectory().getFileObject("target/" + ProjectUtils.getInformation(project).getName());
+     }
 
-        return null == web ? null : web.getPath();
-    }
-
+     return null == web ? null : web.getPath();
+     }
+     */
     public static String getWarChecksum(Project project) {
         // null check
         if (null == project) {
@@ -230,6 +255,59 @@ public class AppEnginePluginUtils {
 
         return result;
     }
+    public static Process runAntTarget(AppEngineDeploymentManager manager, String target, Properties properties) {
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));        
+        FileObject tempFo = FileUtil.toFileObject(tempDir);
+        FileObject buildXml = null;
+        try {
+            buildXml = FileUtil.createData(tempFo,"build.xml");
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+//        InputStream inStream = AppEnginePluginUtils.class.getResourceAsStream("deploy-build.xml");
+        OutputStream outStream = null;
+        try {
+            outStream = buildXml.getOutputStream();
+            Utils.writeDeploymentScript(manager, outStream);
+            //FileUtil.copy(inStream, outStream);
+        } catch (FileAlreadyLockedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            try {
+                outStream.close();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        if (buildXml != null) {
+            try {
+                // Create process builder
+                String ant = Utilities.isWindows() ? "ant.bat" : "ant";
+                ExternalProcessBuilder builder = new ExternalProcessBuilder(new File(new File(AntSettings.getAntHome(), "bin"), ant).getAbsolutePath());
+
+                // Add arguments
+                builder = builder.addArgument("-f");
+                builder = builder.addArgument(buildXml.getPath());
+                builder = builder.addArgument(target);
+                // Add properties
+                for (Object key : properties.keySet()) {
+                    builder = builder.addArgument("-D" + key + "=" + properties.getProperty((String) key));
+                }
+                // Redirect error stream
+                //builder = builder.redirectErrorStream(true);
+                // Perform action
+                Process process = builder.call();
+                return process;
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalArgumentException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return null;        
+    }
 
     public static Process runAntTarget(Project project, String target, Properties properties) {
 
@@ -249,17 +327,23 @@ public class AppEnginePluginUtils {
                 // Add properties
                 for (Object key : properties.keySet()) {
                     builder = builder.addArgument("-D" + key + "=" + properties.getProperty((String) key));
+                    Utils.out("***************** builder.key=" + key + "; value=" + properties.getProperty((String) key));
                 }
 
                 // Redirect error stream
                 builder = builder.redirectErrorStream(true);
-
+Utils.out("BEGIN runAntTarget " + project.getProjectDirectory().getName());
                 // Perform action
                 return builder.call();
 
+
             } catch (IOException ex) {
+Utils.out("BEGIN runAntTarget EXCEPTION 1" + ex.getMessage());
+                
                 Exceptions.printStackTrace(ex);
             } catch (IllegalArgumentException ex) {
+Utils.out("BEGIN runAntTarget EXCEPTION 2" + ex.getMessage());
+                
                 Exceptions.printStackTrace(ex);
             }
         }
@@ -308,4 +392,26 @@ public class AppEnginePluginUtils {
 
         return sb.toString();
     }
+    
+    /**
+     * 
+     * @param webProject
+     * @return 
+     */
+    public static J2eeModuleProvider getJ2eeModuleProvider(Project webProject) {
+        return webProject.getLookup().lookup(J2eeModuleProvider.class);
+    }
+    public static  AppEngineDeploymentManager getDeploymentManager(String uri) {
+        AppEngineDeploymentManager dm = null;
+        try {
+            dm = (AppEngineDeploymentManager) AppEngineDeploymentFactory.getInstance().getDeploymentManager(uri, null, null);
+        } catch(Exception ex) {
+            
+        }
+        return dm;
+    }
+    public static  AppEngineDeploymentManager getDeploymentManager(Project project) {
+        return getDeploymentManager(getJ2eeModuleProvider(project).getServerInstanceID());
+    }
+    
 }

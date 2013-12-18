@@ -30,11 +30,11 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
  */
 public class AppEngineDeploymentStatus implements DeploymentStatus {
     
-    private ActionType action;
-    private CommandType command;
-    private StateType state;
+    private final ActionType action;
+    private final CommandType command;
+    private final StateType state;
     
-    private String message;
+    private final String message;
     
     public AppEngineDeploymentStatus(ActionType action, CommandType command, StateType state, String message) {
         

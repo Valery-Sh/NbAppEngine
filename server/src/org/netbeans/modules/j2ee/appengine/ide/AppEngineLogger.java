@@ -104,4 +104,8 @@ public class AppEngineLogger implements InputProcessor {
 
         return io;
     }
+    
+    public String getText() {
+        return buffer.toString();
+    }
 }

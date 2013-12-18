@@ -23,19 +23,24 @@ import java.util.concurrent.ExecutorService;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.api.extexecution.ExternalProcessSupport;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentFactory;
 import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
 import org.netbeans.modules.j2ee.appengine.AppEngineProgressObject;
 import org.netbeans.modules.j2ee.appengine.ui.AppEngineProjectChooser;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginProperties;
 import org.netbeans.modules.j2ee.appengine.util.AppEnginePluginUtils;
+import org.netbeans.modules.j2ee.appengine.util.Utils;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.plugins.api.ServerDebugInfo;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 //import org.netbeans.modules.profiler.actions.StopAction;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
 //import org.openide.actions.
@@ -49,11 +54,13 @@ public class AppEngineStartServer extends StartServer {
     // Instance of deployment manager
     private final AppEngineDeploymentManager manager;
     private ProgressObject current;
-    private AppEngineServerMode mode;
-
+    private Deployment.Mode mode;
+    //private AppEngineServerMode extendedMode; // null after distribute
+    private boolean serverNeedsRestart;
+    
     private AppEngineStartServer(AppEngineDeploymentManager manager) {
         this.manager = manager;
-
+        serverNeedsRestart = true;
     }
 
     public synchronized static AppEngineStartServer getInstance(AppEngineDeploymentManager manager) {
@@ -70,23 +77,32 @@ public class AppEngineStartServer extends StartServer {
         return start;
     }
 
+    public String pname() {
+        return manager.getSelected() == null ? " NULL " : manager.getSelected().getProjectDirectory().getName();
+    }
+
+    public boolean isServerNeedsRestart() {
+        return serverNeedsRestart;
+    }
+
+    public void setServerNeedsRestart(boolean serverNeedsRestart) {
+        this.serverNeedsRestart = serverNeedsRestart;
+    }
+
     @Override
     public boolean needsRestart(Target target) {
-    //    return false;
-        return manager.isServerNeedsRestart();
+        return isServerNeedsRestart();
     }
 
     public ProgressObject getCurrentProgressObject() {
-        //ProgressObject pp;
-
         return current;
     }
 
-    public AppEngineServerMode getMode() {
+    public Deployment.Mode getMode() {
         return mode;
     }
 
-    public void setMode(AppEngineServerMode mode) {
+    public void setMode(Deployment.Mode mode) {
         this.mode = mode;
     }
 
@@ -110,29 +126,190 @@ public class AppEngineStartServer extends StartServer {
         return true;
     }
 
-    @Override
-    public ProgressObject startDeploymentManager() {
-        return start(mode = AppEngineServerMode.NORMAL);
+    public void resetOnStart() {
+        manager.setSelected(null);
+    }
+
+    public void startDummyServer() {
+
+    }
+
+    public Project findSelected() {
+        if ( manager.isRestartedAction() && manager.getSelected() != null ) {
+            return manager.getSelected();
+        }
+        Project result = null;
+        Project[] projects = OpenProjects.getDefault().getOpenProjects();
+        if ( projects == null ) {
+            return result;
+        }
+        int count = 0;
+        Project main = OpenProjects.getDefault().getMainProject();
+        if ( ! Utils.isAppEngineProject(main)) {
+            main = null;
+        }
+        for ( Project p : projects) {
+            if ( Utils.isAppEngineProject(p)) {
+                count++;
+                result = p;
+            }
+        }
+        if ( count == 1 ) {
+            return result;
+        } else if ( count == 0 ) {
+            return main;
+        }
+        //
+        // Ther are more than one web project registered on Gae
+        //
+        AppEngineDeploymentFactory.LastState selectedState = AppEngineDeploymentFactory.getInstance().getLastStateSelected(manager.getUri());
+        AppEngineDeploymentFactory.LastState usedState = AppEngineDeploymentFactory.getInstance().getLastStateUsedModule(manager.getUri());        
+        
+        FileObject fo =  AppEngineDeploymentFactory.getInstance().getLastSelectedProject(manager.getUri());
+        
+        result = null;
+        if ( fo != null) {
+            result =  FileOwnerQuery.getOwner(fo);
+        } else {
+            result = main;
+        }
+        
+        if ( result != null && usedState != null ) {
+            long st = selectedState.getTime();
+            long us = usedState.getTime();
+            if ( Math.abs(usedState.getTime() - selectedState.getTime()) < 60000  ) {
+                result = FileOwnerQuery.getOwner(usedState.getProjDir());
+            }
+        }
+        
+        return result;
     }
 
     @Override
+    public ProgressObject startDeploymentManager() {
+        Utils.out("--- STARTSERVER: startDeploymentManager() " + " --- " + pname());
+        //
+        // May be in some cases there is a way to determine a project 
+        //
+        Project p = findSelected();
+        if (p != null) {
+            return startDeploymentManager(p);
+        }
+        resetOnStart(); // set manager.setSelected(null)
+        //startDummyServer(); //now does nothing
+//        extendedMode = AppEngineServerMode.NORMAL;
+        mode = Deployment.Mode.RUN;
+        return new AppEngineProgressObject(null,false,Deployment.Mode.RUN );
+        //return startDummy(mode = AppEngineServerMode.NORMAL);
+    }
+
+    public ProgressObject startDeploymentManager(Project project) {
+        manager.setSelected(project);        
+        Utils.out("--- STARTSERVER: startDeploymentManager(Project) " + " --- " + project.getProjectDirectory().getName());
+        serverNeedsRestart = false;
+//        extendedMode = AppEngineServerMode.NORMAL;
+        return start(mode = Deployment.Mode.RUN);
+    }
+
+
+    @Override
     public ProgressObject startDebugging(Target target) {
-        return start(mode = AppEngineServerMode.DEBUG);
+        Utils.out("--- STARTSERVER startDebugging(Target) ------------");
+        Project p = findSelected();
+        if (p != null) {
+            Utils.out("--- STARTSERVER startDebugging(Target) SELECTED FOUND ------------");
+            return startDebugging(target,p);
+        }
+        //if ( manager.getSelected() != null && AppEngineMavenUtils.isMavenProject(manager.getSelected()) ) {
+/*        if (manager.isKnownWebApp() && manager.getSelected() != null) {
+            manager.setKnownWebApp(false);
+            Utils.out("--- STARTSERVER startDebugging known web project " + " --- " + pname());
+            return startDebugging(target, manager.getSelected());
+        } else {
+            Utils.out("--- STARTSERVER startDebugging(Target) " + " --- " + pname());
+        }
+        resetOnStart();
+        extendedMode = AppEngineServerMode.DEBUG;
+        mode = AppEngineServerMode.DEBUG;
+        current = new DummyDeployer2(manager, mode, manager.getSelected());
+        return new AppEngineProgressObject(null, false, mode);
+*/        
+        return new AppEngineProgressObject(null, true, mode);
+        
+        //return startDummy(mode = AppEngineServerMode.DEBUG);
+
+//        return start(mode = AppEngineServerMode.DEBUG);
+    }
+
+    public ProgressObject startDebugging(Target target, Project project) {
+        Utils.out("--- STARTSERVER BEFORE START startDebugging(Target,Project) " + " --- " + pname());
+        manager.setSelected(project);
+//        extendedMode = AppEngineServerMode.DEBUG;
+        serverNeedsRestart = false;
+        ProgressObject po = start(mode = Deployment.Mode.DEBUG);
+        Utils.out("--- STARTSERVER  AFTER START  startDebugging(Target,Project) " + " --- " + pname());
+        return po;
+        //return start(mode = AppEngineServerMode.DEBUG);      
+//        return start(mode = AppEngineServerMode.DEBUG);
+    }
+
+    public ProgressObject startProfiling(Target target, Project project) {
+        Utils.out("--- STARTSERVER BEFORE START startProfiling(Project) " + " --- " + pname());
+        manager.setSelected(project);
+        serverNeedsRestart = false;
+//        extendedMode = AppEngineServerMode.PROFILE;
+        ProgressObject po = start(mode = Deployment.Mode.PROFILE);
+        Utils.out("--- STARTSERVER  AFTER START  startProfiling(Project) " + " --- " + pname());
+        return po;
+        //return start(mode = AppEngineServerMode.DEBUG);      
+//        return start(mode = AppEngineServerMode.DEBUG);
     }
 
     @Override
     public ProgressObject startProfiling(Target target) {
-        return start(mode = AppEngineServerMode.PROFILE);
+        Project p = findSelected();
+//        if (p != null) {
+            return startProfiling(target,p);
+//        }
+
+/*        if (manager.isKnownWebApp() && manager.getSelected() != null) {
+            manager.setKnownWebApp(false);
+            Utils.out("--- STARTSERVER startProfiling selected != null && known == true" + " --- " + pname());
+            return startProfiling(target, manager.getSelected());
+        }
+*/        
+        /*        if ( true ) {
+         FileObject fo = FileUtil.toFileObject(new File("d:/vnstestapps/GaeWebApp01"));
+            
+         Project p = FileOwnerQuery.getOwner(fo);
+         manager.setSelected(p);
+         return startProfiling(target, p);
+         }
+         */
+  //      Utils.out("--- STARTSERVER startProfiling" + " --- " + pname());
+
+        /*        ServerInstance instance = CommonServerBridge.getCommonInstance(manager.getUri());
+         MyLOG.log("APPENGINE: START PROFILING" + " --- " + pname() );        
+         for (StartupExtender args : StartupExtender.getExtenders(Lookups.singleton(instance), StartupExtender.StartMode.PROFILE)) {
+         MyLOG.log("=========== START SERVER StartupExtender class=" + args.getClass().getName());
+         for (String arg : args.getArguments()) {
+         MyLOG.log("===========  START SERVER StartupExtender --jvm_flag==" + arg);                
+         }
+         }
+         */
+//        resetOnStart();
+//        extendedMode = AppEngineServerMode.PROFILE;
+ //       mode = AppEngineServerMode.PROFILE;
+//        current = new DummyDeployer2(manager, mode, manager.getSelected());
+//        return new AppEngineProgressObject(null,false, mode);
+
+//        return startDummy(mode = AppEngineServerMode.PROFILE);
     }
 
     @Override
     public ProgressObject stopDeploymentManager() {
-//        if (manager.isProfilingNeedsStop()) {
-//            StopAction action = StopAction.getInstance();
-//            if (action.isEnabled()) {
-               // action.performAction();
-//            }
-//        }
+        Utils.out("--- STARTSERVER stopDeploymentManager" + " --- " + pname());
+
         Process process = manager.getProcess();
         ExecutorService executor = manager.getExecutor();
 
@@ -155,13 +332,13 @@ public class AppEngineStartServer extends StartServer {
             // Set to null
             manager.setExecutor(null);
         }
-        
-        if ( ! manager.isServerNeedsRestart() ) {
-            manager.setSelected(null);
-        }
-        manager.setServerNeedsRestart(false);
-        this.mode = AppEngineServerMode.NORMAL;
-        return (current = new AppEngineProgressObject(manager.getModule(), false, mode));
+
+        mode = Deployment.Mode.RUN;
+//        extendedMode = AppEngineServerMode.NORMAL;
+        //manager.setKnownWebApp(false);
+        //manager.setSelected(null); //14.12
+
+        return (current = new AppEngineProgressObject(manager.getTargetModuleID(), false, mode));
     }
 
     @Override
@@ -198,7 +375,6 @@ public class AppEngineStartServer extends StartServer {
         } catch (IllegalThreadStateException ex) {
             // Nothing to do
         }
-
         return true;
     }
 
@@ -206,7 +382,7 @@ public class AppEngineStartServer extends StartServer {
     public boolean isDebuggable(Target target) {
         String s = null;
         // It's not in debug mode
-        if (!isRunning() || null == mode || mode == AppEngineServerMode.NORMAL || mode == AppEngineServerMode.PROFILE) {
+        if (!isRunning() || null == mode || mode == Deployment.Mode.RUN || mode == Deployment.Mode.PROFILE) {
             return false;
         }
         // It's in debug mode
@@ -226,23 +402,17 @@ public class AppEngineStartServer extends StartServer {
      * @param mode
      * @return
      */
-    private ProgressObject start(AppEngineServerMode mode) {
-        if ( manager.getSelected() == null ) {
-            Project p = requestSelected(AppEngineServerMode.NORMAL);
-            manager.setSelected(p);
-        }
-        if ( manager.getSelected() == null ) {
-            //Fail
-            return new AppEngineProgressObject(manager.getModule(), true, mode);
-        }
-        
+    private ProgressObject start(Deployment.Mode mode) {
+        Utils.out("--- STARTSERVER start" + " --- ");
+        Utils.out("START SERVER: before AppEngineDeployer.getInstance proj=" + manager.getSelected());
         current = AppEngineDeployer.getInstance(manager, mode, manager.getSelected());
+        Utils.out("START SERVER: AppEngineDeployer Instance class=" + current.getClass().getName());
         ((AppEngineDeployer) current).deploy();
         return current;
 
     }
 
-    private Project requestSelected(AppEngineServerMode mode) {
+    private Project requestSelected(Deployment.Mode mode) {
         Project[] projects = AppEnginePluginUtils.getAppEngineProjects(manager.getUri());
         if (projects.length == 0) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(AppEngineStartServer.class, "MSG_NoProjectWarning")));
@@ -271,5 +441,3 @@ public class AppEngineStartServer extends StartServer {
         return null;
     }
 }
-    
-    
