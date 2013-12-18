@@ -19,6 +19,10 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.lookup.ServiceProvider;
 
 //@ServiceProvider(service = AntLogger.class, position = 100)
+/**
+ * @deprecated used only for debug purpose
+ * @author Valery
+ */
 public class AppEngineAntLogger extends AntLogger {
 
     /**

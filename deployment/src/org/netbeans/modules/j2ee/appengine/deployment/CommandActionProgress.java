@@ -73,7 +73,6 @@ public class CommandActionProgress extends ActionProgress implements Runnable{
     protected void started() {
         finished = false;
         failed = false;
-        DeployUtils.out("STARTED PROJECT " + project.getProjectDirectory().getNameExt() + "; TIME=" + (new Date()));
         
     }
     /**
@@ -177,7 +176,6 @@ public class CommandActionProgress extends ActionProgress implements Runnable{
                 LOG.log(Level.INFO, ex.getMessage());
             }
         }
-DeployUtils.out("invokeActionAndWait return time=" + new Date());
         return ! listener.isFailed();
     }
     

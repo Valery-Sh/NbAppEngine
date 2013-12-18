@@ -196,11 +196,8 @@ public class AppEngineStartServer extends StartServer {
             return startDeploymentManager(p);
         }
         resetOnStart(); // set manager.setSelected(null)
-        //startDummyServer(); //now does nothing
-//        extendedMode = AppEngineServerMode.NORMAL;
         mode = Deployment.Mode.RUN;
         return new AppEngineProgressObject(null,false,Deployment.Mode.RUN );
-        //return startDummy(mode = AppEngineServerMode.NORMAL);
     }
 
     public ProgressObject startDeploymentManager(Project project) {
@@ -217,93 +214,29 @@ public class AppEngineStartServer extends StartServer {
         Utils.out("--- STARTSERVER startDebugging(Target) ------------");
         Project p = findSelected();
         if (p != null) {
-            Utils.out("--- STARTSERVER startDebugging(Target) SELECTED FOUND ------------");
             return startDebugging(target,p);
         }
-        //if ( manager.getSelected() != null && AppEngineMavenUtils.isMavenProject(manager.getSelected()) ) {
-/*        if (manager.isKnownWebApp() && manager.getSelected() != null) {
-            manager.setKnownWebApp(false);
-            Utils.out("--- STARTSERVER startDebugging known web project " + " --- " + pname());
-            return startDebugging(target, manager.getSelected());
-        } else {
-            Utils.out("--- STARTSERVER startDebugging(Target) " + " --- " + pname());
-        }
-        resetOnStart();
-        extendedMode = AppEngineServerMode.DEBUG;
-        mode = AppEngineServerMode.DEBUG;
-        current = new DummyDeployer2(manager, mode, manager.getSelected());
-        return new AppEngineProgressObject(null, false, mode);
-*/        
         return new AppEngineProgressObject(null, true, mode);
-        
-        //return startDummy(mode = AppEngineServerMode.DEBUG);
-
-//        return start(mode = AppEngineServerMode.DEBUG);
     }
 
     public ProgressObject startDebugging(Target target, Project project) {
         Utils.out("--- STARTSERVER BEFORE START startDebugging(Target,Project) " + " --- " + pname());
         manager.setSelected(project);
-//        extendedMode = AppEngineServerMode.DEBUG;
         serverNeedsRestart = false;
-        ProgressObject po = start(mode = Deployment.Mode.DEBUG);
-        Utils.out("--- STARTSERVER  AFTER START  startDebugging(Target,Project) " + " --- " + pname());
-        return po;
-        //return start(mode = AppEngineServerMode.DEBUG);      
-//        return start(mode = AppEngineServerMode.DEBUG);
+        return start(mode = Deployment.Mode.DEBUG);
     }
 
     public ProgressObject startProfiling(Target target, Project project) {
         Utils.out("--- STARTSERVER BEFORE START startProfiling(Project) " + " --- " + pname());
         manager.setSelected(project);
         serverNeedsRestart = false;
-//        extendedMode = AppEngineServerMode.PROFILE;
-        ProgressObject po = start(mode = Deployment.Mode.PROFILE);
-        Utils.out("--- STARTSERVER  AFTER START  startProfiling(Project) " + " --- " + pname());
-        return po;
-        //return start(mode = AppEngineServerMode.DEBUG);      
-//        return start(mode = AppEngineServerMode.DEBUG);
+        return start(mode = Deployment.Mode.PROFILE);
     }
 
     @Override
     public ProgressObject startProfiling(Target target) {
         Project p = findSelected();
-//        if (p != null) {
-            return startProfiling(target,p);
-//        }
-
-/*        if (manager.isKnownWebApp() && manager.getSelected() != null) {
-            manager.setKnownWebApp(false);
-            Utils.out("--- STARTSERVER startProfiling selected != null && known == true" + " --- " + pname());
-            return startProfiling(target, manager.getSelected());
-        }
-*/        
-        /*        if ( true ) {
-         FileObject fo = FileUtil.toFileObject(new File("d:/vnstestapps/GaeWebApp01"));
-            
-         Project p = FileOwnerQuery.getOwner(fo);
-         manager.setSelected(p);
-         return startProfiling(target, p);
-         }
-         */
-  //      Utils.out("--- STARTSERVER startProfiling" + " --- " + pname());
-
-        /*        ServerInstance instance = CommonServerBridge.getCommonInstance(manager.getUri());
-         MyLOG.log("APPENGINE: START PROFILING" + " --- " + pname() );        
-         for (StartupExtender args : StartupExtender.getExtenders(Lookups.singleton(instance), StartupExtender.StartMode.PROFILE)) {
-         MyLOG.log("=========== START SERVER StartupExtender class=" + args.getClass().getName());
-         for (String arg : args.getArguments()) {
-         MyLOG.log("===========  START SERVER StartupExtender --jvm_flag==" + arg);                
-         }
-         }
-         */
-//        resetOnStart();
-//        extendedMode = AppEngineServerMode.PROFILE;
- //       mode = AppEngineServerMode.PROFILE;
-//        current = new DummyDeployer2(manager, mode, manager.getSelected());
-//        return new AppEngineProgressObject(null,false, mode);
-
-//        return startDummy(mode = AppEngineServerMode.PROFILE);
+        return startProfiling(target,p);
     }
 
     @Override
@@ -334,10 +267,6 @@ public class AppEngineStartServer extends StartServer {
         }
 
         mode = Deployment.Mode.RUN;
-//        extendedMode = AppEngineServerMode.NORMAL;
-        //manager.setKnownWebApp(false);
-        //manager.setSelected(null); //14.12
-
         return (current = new AppEngineProgressObject(manager.getTargetModuleID(), false, mode));
     }
 
@@ -404,9 +333,7 @@ public class AppEngineStartServer extends StartServer {
      */
     private ProgressObject start(Deployment.Mode mode) {
         Utils.out("--- STARTSERVER start" + " --- ");
-        Utils.out("START SERVER: before AppEngineDeployer.getInstance proj=" + manager.getSelected());
         current = AppEngineDeployer.getInstance(manager, mode, manager.getSelected());
-        Utils.out("START SERVER: AppEngineDeployer Instance class=" + current.getClass().getName());
         ((AppEngineDeployer) current).deploy();
         return current;
 

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.netbeans.modules.j2ee.appengine.ide;
 
 import java.io.IOException;
@@ -89,7 +84,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
 
     public void deploy(ExecutorTask waitTask) {
         this.waitTask = waitTask;
-        Utils.out("AppEngineDeployer deploy");
         // Start deployer
         RequestProcessor.getDefault().post(this);
     }
@@ -144,10 +138,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
         }
 
         ServerInstance instance = CommonServerBridge.getCommonInstance(manager.getUri());
-        Collection c = instance.getLookup().lookupAll(Object.class);
-        for (Object o : c) {
-            Utils.out("CLASS: " + o.getClass().getName());
-        }
         StringBuilder jvmargs = new StringBuilder();
         List<StartupExtender> l = StartupExtender.getExtenders(Lookups.singleton(instance), startMode);
         for (StartupExtender args : StartupExtender.getExtenders(Lookups.singleton(instance), startMode)) {
@@ -178,7 +168,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
         } else if (mode == Deployment.Mode.PROFILE) {
             target = "runserver-profile";
         }
-        Utils.out(getClass().getSimpleName() + " getTarget=" + target);
         return target;
     }
 
@@ -195,7 +184,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
     
     @Override
     public void run() {
-        Utils.out("AppEngineDeployer.run() 1 time=" + new Date());
         if (getStartServer().isRunning()) {
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_ALLREADY_RUNNING"));
             return;
@@ -217,7 +205,6 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
         }
 
         Utils.out("========= AppEngineDeployer.run() COMPLETED isRunning=" + getStartServer().isRunning() + "; time=" + new Date());
-        //properties.refreshServerInstance();
         fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STARTED"));
 
         accomplish();
@@ -229,14 +216,11 @@ public class AppEngineDeployer implements Runnable, ProgressObject {
      * @return 0 -continue; 1 - success; -1 failed
      */
     protected int waitFinished() {
-        //while ( ) 
         try {
             Thread.sleep(100);
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         }
-//        if ( true ) return 1;
-        Utils.out("AppEngineDeployer.waitFinished()");
         while (!logger.contains("Dev App Server is now running")
                 && !logger.contains("The server is running")
                 && !logger.contains("Listening for transport dt_socket at address")

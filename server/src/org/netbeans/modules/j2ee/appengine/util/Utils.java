@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.netbeans.modules.j2ee.appengine.util;
 
 import java.io.BufferedReader;
@@ -25,7 +19,6 @@ import org.netbeans.modules.j2ee.appengine.AppEngineDeploymentManager;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-//import org.netbeans.modules.maven.api.Constants;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.windows.IOProvider;
@@ -33,7 +26,7 @@ import org.openide.windows.InputOutput;
 
 /**
  *
- * @author Valery
+ * @author V. Shyshkin
  */
 public class Utils {
     
@@ -52,7 +45,7 @@ public class Utils {
     }
     
     public static Project projectByName(String projName) {
-        Project[] projs = projects();
+        Project[] projs = OpenProjects.getDefault().getOpenProjects();
         Project r = null;
         for ( Project p : projs) {
             if ( p.getProjectDirectory().getName().equals(projName) ) {
@@ -62,44 +55,31 @@ public class Utils {
         }
         return r;
     }
-    public static Project[] projects() {
-        return OpenProjects.getDefault().getOpenProjects();
-    }
+    
     
     public static boolean isAppEngineProject(Project p) {
-        //out("isAppEngineProject p=" + p);        
         J2eeModuleProvider mp = p.getLookup().lookup(J2eeModuleProvider.class);
-        //out("isAppEngineProject 1." );        
-        
         if ( mp == null ) {
-        //out("isAppEngineProject 2." );        
-            
             return false;
         }
-        //out("isAppEngineProject 3." );        
-        
         InstanceProperties ip = mp.getInstanceProperties();
         if ( ip == null ) {
             return false;
         }
-        //out("isAppEngineProject 4." );        
         
         String uri = ip.getProperty("url");
-        //out("URL PROP=" + uri);
-        
         if ( uri == null || ! uri.startsWith(URI_PREFIX)) {
             return false;
         }
-        out("isAppEngineProject == TRUE" );        
         return true;
 
     }
 
     /**
      * Returns a file object which represents a web application configuration
-     * file named {@literal embedded-context.properties} for a given directory.
-     * If a web project is registered in an embedded server then it must have
-     * such file in the {@literal META-INF} directory.
+     * file named {@literal appengine-web.xml} for a given directory.
+     * If a web project is registered in a GAE server then it must have
+     * such a file in the {@literal WEB-INF} directory.
      *
      * @param webProjectDir a directory to look for
      * @return {@literal null} if the specified file doesn't exist. An instance
@@ -138,11 +118,6 @@ public class Utils {
         //String webDir = Utils.getAppEngineConfigFile(manager.getSelected().getProjectDirectory()).getParent().getParent().getPath();
         String webDir = Utils.getWebDir(manager.getSelected()).getPath();
         xml = xml.replace("#build.web.dir", webDir);
-Utils.out("xml: appengine.location = " + manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_APPENGINE_LOCATION));
-Utils.out("xml: appengine.http.port = " + manager.getProperties().getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER));
-Utils.out("xml: appengine.debug.port = " + manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.DEBUG_PORT_NUMBER));
-Utils.out("xml: build.web.dir = " + webDir);
-
         String p = manager.getProperties().getInstanceProperties().getProperty(AppEnginePluginProperties.PROPERTY_DATANUCLEUS_ENHANCER);        
         if ( "v2".equals(p)) {
             p = "true";

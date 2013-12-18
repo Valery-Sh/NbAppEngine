@@ -33,7 +33,6 @@ public final class DeployAction extends NodeAction {
     protected void performAction(Node[] activatedNodes) {
         assert activatedNodes.length == 1;
         Project p = getProject(activatedNodes);
-        DeployUtils.out("Project path=" + p.getProjectDirectory().getPath());        
         
         DeployUtils.deploy(p);
     }
@@ -67,13 +66,11 @@ public final class DeployAction extends NodeAction {
         if (proj == null){
             return false;
         }
-       // DeployUtils.out("Project path=" + proj.getProjectDirectory().getPath());        
         return DeployUtils.isAppEngineProject(proj) && DeployUtils.appCFGAvailable(proj);
     }
 
     private Project getProject(Node[] nodes) {
         Node n = nodes[0];
-        //DeployUtils.out("getProject path=" +n.getLookup().lookup(Project.class).getProjectDirectory().getPath());
         return n.getLookup().lookup(Project.class);
     }
 }

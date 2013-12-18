@@ -23,7 +23,7 @@ import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 
-@ActionID(
+/*@ActionID(
         category = "Project",
         id = "org.netbeans.modules.j2ee.appengine.maven.RunDevServer"
 )
@@ -33,6 +33,7 @@ import org.openide.util.NbBundle.Messages;
 @ActionReference(path = "Projects/Actions", position = 0)
 
 @Messages("CTL_RunDevServer=Run dev GAE Server")
+*/
 public final class RunDevServer extends AbstractAction implements ContextAwareAction {
 
     private static final Logger LOG = Logger.getLogger(RunDevServer.class.getName());

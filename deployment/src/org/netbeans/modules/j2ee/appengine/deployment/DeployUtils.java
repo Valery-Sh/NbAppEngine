@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.api.support.ActionUtils;
@@ -186,8 +185,9 @@ public class DeployUtils {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         FileObject tempFo = FileUtil.toFileObject(tempDir);
         FileObject buildXml = null;
+        String s = project.getProjectDirectory().getName();
         try {
-            buildXml = FileUtil.createData(tempFo, "build.xml");
+            buildXml = FileUtil.createData(tempFo, "build_appengine_deployutils_" + s + ".xml");
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             return;
@@ -221,23 +221,18 @@ public class DeployUtils {
             return;
         }
         props.setProperty("appengine.location", loc.getPath());
-DeployUtils.out("** 1.");
         FileObject webDir = getWebDir(project);
-DeployUtils.out("** 2.");        
         props.setProperty("build.web.dir", webDir.getPath());
         props.setProperty("appengine.jpa2", Boolean.toString(isV2Enhancer(project)));
 
         try {
             ActionUtils.runTarget(buildXml, new String[]{"enhance"}, props).waitFinished();
-DeployUtils.out("** 3.");            
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IllegalArgumentException ex) {
             Exceptions.printStackTrace(ex);
         }
 
-        DeployUtils.out("buildProject time=" + new Date());
-        //TODO build maven project
     }
 
     static boolean isV2Enhancer(Project project) {

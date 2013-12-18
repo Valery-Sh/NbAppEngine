@@ -79,7 +79,6 @@ public class AppEngineProgressObject implements ProgressObject {
 
     @Override
     public void cancel() throws OperationUnsupportedException {
-        Utils.out("--- AppEngineProgressObject cancel() time=" + new Date());        
     }
 
     @Override

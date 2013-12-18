@@ -34,8 +34,6 @@ public final class ChangeAccountAction extends NodeAction {
         assert activatedNodes.length == 1;
         String s = Deployer.changeEmail();
         Project proj = getProject(activatedNodes);
-        DeployUtils.out("Server.isRunning=" + DeployUtils.isServerRunning(proj));
-        DeployUtils.out("NEW EMAIL=" + s);
     }
 
     @Override

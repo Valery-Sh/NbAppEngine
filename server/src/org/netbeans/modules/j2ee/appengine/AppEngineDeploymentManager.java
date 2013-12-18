@@ -76,7 +76,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     public boolean restartedAction;
 
     //private boolean knownWebApp;
-
     public String pname() {
         return getSelected() == null ? " NULL " : getSelected().getProjectDirectory().getName();
     }
@@ -87,7 +86,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         this.target = new AppEngineTarget(getProperties().getInstanceProperties().getProperty(InstanceProperties.DISPLAY_NAME_ATTR));
         this.logger = AppEngineLogger.getInstance(uri);
     }
-
 
     public String getUri() {
         return uri;
@@ -184,35 +182,26 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     @Override
     public TargetModuleID[] getRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-        Utils.out("--- DEPLOYMENTMANAGER: getRunningModules" + " --- " + pname());
-
         return new TargetModuleID[]{getTargetModuleID()};
     }
 
     @Override
     public TargetModuleID[] getNonRunningModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-        Utils.out("--- DEPLOYMENTMANAGER: getNonRunningModules" + " --- " + pname());
-
         return new TargetModuleID[]{};
     }
 
     @Override
     public TargetModuleID[] getAvailableModules(ModuleType arg0, Target[] arg1) throws TargetException, IllegalStateException {
-        Utils.out("--- DEPLOYMENTMANAGER: getAvailableModules" + " --- " + pname());
-
         return new TargetModuleID[]{};
     }
 
     @Override
     public DeploymentConfiguration createConfiguration(DeployableObject arg0) throws InvalidModuleException {
-        Utils.out("--- DEPLOYMENTMANAGER: createConfiguration" + " --- " + pname());
-
         return null;
     }
 
     protected ProgressObject restartNormalAction() {
 
-        Utils.out("--- DEPLOYMENTMANAGER restartNormalAction 1");
         new RequestProcessor().post(new Runnable() {
             @Override
             public void run() {
@@ -224,19 +213,14 @@ public class AppEngineDeploymentManager implements DeploymentManager {
                 stopServer();
                 ActionProvider ap = selected.getLookup().lookup(ActionProvider.class);
                 restartedAction = true;
-                Utils.out("--- DEPLOYMENTMANAGER distributer invoke Run action");
                 ap.invokeAction(ActionProvider.COMMAND_RUN, selected.getLookup());
             }
         });
         return new AppEngineProgressObject(getTargetModuleID(), true, Deployment.Mode.RUN, CommandType.DISTRIBUTE);
     }
-    
+
     protected ProgressObject restartDebugAction() {
 
-        //AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
-
-
-        Utils.out("--- DEPLOYMENTMANAGER restartDebugAction 1");
         RequestProcessor rp = new RequestProcessor();
         rp.post(new Runnable() {
             @Override
@@ -247,12 +231,8 @@ public class AppEngineDeploymentManager implements DeploymentManager {
                     Exceptions.printStackTrace(ex);
                 }
                 stopServer();
-                Session ses = DebuggerManager.getDebuggerManager().getCurrentSession();
-                Utils.out("--- DEPLOYMENTMANAGER debugger session = " + ses);
-                //ses.kill();
                 ActionProvider ap = selected.getLookup().lookup(ActionProvider.class);
                 restartedAction = true;
-                Utils.out("--- DEPLOYMENTMANAGER distributer invoke debug action");
                 ap.invokeAction(ActionProvider.COMMAND_DEBUG, selected.getLookup());
             }
         });
@@ -261,8 +241,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
     protected ProgressObject restartProfileAction() {
 
-
-        Utils.out("--- DEPLOYMENTMANAGER restartProfileAction 1");
+//        Utils.out("--- DEPLOYMENTMANAGER restartProfileAction 1");
         RequestProcessor rp = new RequestProcessor();
         rp.post(new Runnable() {
             @Override
@@ -275,24 +254,21 @@ public class AppEngineDeploymentManager implements DeploymentManager {
                 stopServer();
                 ActionProvider ap = selected.getLookup().lookup(ActionProvider.class);
                 restartedAction = true;
-                Utils.out("--- DEPLOYMENTMANAGER distributer invoke Profile action");
                 ap.invokeAction(ActionProvider.COMMAND_PROFILE, selected.getLookup());
             }
         });
         return new AppEngineProgressObject(getTargetModuleID(), true, Deployment.Mode.PROFILE, CommandType.DISTRIBUTE);
     }
-    
+
     @Override
     public ProgressObject distribute(Target[] target, File file, File plan) throws IllegalStateException {
         Utils.out("--- DEPLOYMENTMANAGER DISTRIBUTE time=" + new Date());
         AppEngineStartServer startServer = AppEngineStartServer.getInstance(this);
         startServer.setServerNeedsRestart(true);
         if (restartedAction) {
-            Utils.out("--- DEPLOYMENTMANAGER DISTRIBUTE redeploy == true time=" + new Date());
             restartedAction = false;
-//            startServer.setExtendedMode(null);
             getProperties().getInstanceProperties().setProperty("deployedProject", selected.getProjectDirectory().getPath());
-           return getProgress();
+            return getProgress();
         }
 
         FileObject fo = FileUtil.toFileObject(file);
@@ -300,72 +276,25 @@ public class AppEngineDeploymentManager implements DeploymentManager {
         Project distrProject = FileOwnerQuery.getOwner(fo);
         if (distrProject.equals(selected)) {
             getProperties().getInstanceProperties().setProperty("deployedProject", distrProject.getProjectDirectory().getPath());
-            return new AppEngineProgressObject(getTargetModuleID(), false, startServer.getMode(), CommandType.DISTRIBUTE);            
+            return new AppEngineProgressObject(getTargetModuleID(), false, startServer.getMode(), CommandType.DISTRIBUTE);
         }
         //
         // The server started with invalid web project. We must restart it.
         //
         if (Deployment.Mode.RUN.equals(startServer.getMode())) {
-            Utils.out("--- DEPLOYMENTMANAGER DISTRIBUTE. 1");
-            
-//            ProgressObject po = new AppEngineProgressObject(getTargetModuleID(), false, AppEngineServerMode.NORMAL, CommandType.DISTRIBUTE);
             selected = distrProject;
-            
-//            if (selected.equals(distrProject)) {
-                // web app is correctly selected
-//                startServer.setExtendedMode(null);
-//            } else {
-                // we must restart the whole action 
-//                selected = distrProject;
-//                startServer.setExtendedMode(null);
-                restartedAction = true;
-                return restartNormalAction();
 
-//            }
-//            return po;
-            
+            restartedAction = true;
+            return restartNormalAction();
         } else if (Deployment.Mode.DEBUG.equals(startServer.getMode())) {
-            //
-            // startDebugging has alredy been issued just before distribute.
-            // We must check whether we guess the web app used to start the server.
-            // 
-//            ProgressObject po = new AppEngineProgressObject(getTargetModuleID(), false, AppEngineServerMode.DEBUG, CommandType.DISTRIBUTE);
-//            if (selected.equals(distrProject)) {
-                // web app is correctly selected
-//                selected = distrProject;
-//                startServer.setExtendedMode(null);
-//            } else {
-                // we must restart the whole action 
-                selected = distrProject;
-//                startServer.setExtendedMode(null);
-                restartedAction = true;
-                return restartDebugAction();
+            selected = distrProject;
+            restartedAction = true;
+            return restartDebugAction();
 
-//            }
-//            return po;
-//            selected = distrProject;
-//            return startInNomalMode();
         } else if (Deployment.Mode.PROFILE.equals(startServer.getMode())) {
-            //
-            // startDebugging has alredy been issued just before distribute.
-            // We must check whether we guess the web app used to start the server.
-            // 
-//            ProgressObject po = new AppEngineProgressObject(getTargetModuleID(), false, AppEngineServerMode.DEBUG, CommandType.DISTRIBUTE);
-//            if (selected.equals(distrProject)) {
-                // web app is correctly selected
-//                selected = distrProject;
-//                startServer.setExtendedMode(null);
-//            } else {
-                // we must restart the whole action 
-                selected = distrProject;
-//                startServer.setExtendedMode(null);
-                restartedAction = true;
-                return restartProfileAction();
-
-//            }
-//            return po;
-//            selected = distrProject;
-//            return startInNomalMode();
+            selected = distrProject;
+            restartedAction = true;
+            return restartProfileAction();
         }
         return null;
     }
@@ -383,7 +312,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
     @Override
     public ProgressObject start(TargetModuleID[] arg0) throws IllegalStateException {
         Utils.out("--- DEPLOYMENTMANAGER: start" + " --- " + pname());
-
         return getProgress();
     }
 
@@ -432,14 +360,7 @@ public class AppEngineDeploymentManager implements DeploymentManager {
             }
         }
 
-        Utils.out("--- DEPLOYMENTMANAGER stopServer() isRunning()=" + startServer.isRunning());
-
         startServer.setMode(Deployment.Mode.RUN);
-//        startServer.setExtendedMode(AppEngineServerMode.NORMAL);
-        //selected = null;
-
-        //return null;
-        //return (current = new AppEngineProgressObject(manager.getTargetModuleID(), false, mode));
     }
 
     @Override
@@ -508,17 +429,6 @@ public class AppEngineDeploymentManager implements DeploymentManager {
 
 //    @Override
     public ProgressObject redeploy(TargetModuleID[] tmids, DeploymentContext deployment) {
-        Utils.out("--- DEPLOYMENTMANAGER: redeploy 2" + " --- " + pname());
-        //return null;
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public class GaeProgressListener implements ProgressListener {
-
-        @Override
-        public void handleProgressEvent(ProgressEvent pe) {
-            Utils.out("GaeProgressListener " + pe.toString());
-        }
-
     }
 }

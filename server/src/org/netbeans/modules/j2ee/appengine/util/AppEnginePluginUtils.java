@@ -259,8 +259,10 @@ public class AppEnginePluginUtils {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));        
         FileObject tempFo = FileUtil.toFileObject(tempDir);
         FileObject buildXml = null;
+        
         try {
-            buildXml = FileUtil.createData(tempFo,"build.xml");
+            String s = manager.getSelected().getProjectDirectory().getName();
+            buildXml = FileUtil.createData(tempFo,"build_appenginepluginutils_runanttarget_" + s + ".xml");
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -327,28 +329,21 @@ public class AppEnginePluginUtils {
                 // Add properties
                 for (Object key : properties.keySet()) {
                     builder = builder.addArgument("-D" + key + "=" + properties.getProperty((String) key));
-                    Utils.out("***************** builder.key=" + key + "; value=" + properties.getProperty((String) key));
                 }
 
                 // Redirect error stream
                 builder = builder.redirectErrorStream(true);
-Utils.out("BEGIN runAntTarget " + project.getProjectDirectory().getName());
                 // Perform action
                 return builder.call();
 
 
             } catch (IOException ex) {
-Utils.out("BEGIN runAntTarget EXCEPTION 1" + ex.getMessage());
-                
                 Exceptions.printStackTrace(ex);
             } catch (IllegalArgumentException ex) {
-Utils.out("BEGIN runAntTarget EXCEPTION 2" + ex.getMessage());
-                
                 Exceptions.printStackTrace(ex);
             }
         }
 
-        //TODO build maven project
         return null;
     }
 

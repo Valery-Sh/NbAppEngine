@@ -57,7 +57,6 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
     }
 
     void deploy() {
-        DeployUtils.out("Deployer.deploy project=" + project.getProjectDirectory().getPath());
         progressHandle = ProgressHandleFactory.createHandle(processTitle, this);
         progressHandle.start();
         deploy(false);
@@ -68,7 +67,6 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
         OutputProcessor.Waitable waitable = null;
         try {
             FileObject appcfg = DeployUtils.getAppCFG(project);
-            DeployUtils.out("Deployer.deploy(boolean) appcfg=" + appcfg);
 
             if (appcfg == null) {
                 cancel();
@@ -76,7 +74,6 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
             }
 
             String email = getEmail(markPasswordIncorrect);
-            DeployUtils.out("Deployer.deploy(boolean) email=" + email);
 
             if (email == null) {
                 cancel();
@@ -145,10 +142,8 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
 
     public static String changeEmail() {
         String result = loadEmail();
-        DeployUtils.out("Deployer.getEmail() getEmail result=" + result);
 
         String message = null;
-        DeployUtils.out("Deployer.changeEmail() msg=" + message);
 
         boolean dialogResult = showDialog(null, null, message);
         if (!dialogResult) {
@@ -159,7 +154,6 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
 
     private static String getEmail(boolean markPasswordIncorrect) {
         String result = loadEmail();
-        DeployUtils.out("Deployer.getEmail() getEmail result=" + result);
 
         if (markPasswordIncorrect || result == null) {
 
@@ -167,7 +161,6 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
             if (markPasswordIncorrect) {
                 message = NbBundle.getMessage(DeployUtils.class, "ValueIncorrect");
             }
-            DeployUtils.out("Deployer.getEmail() msg=" + message);
 
             boolean dialogResult = showDialog(null, null, message);
             if (!dialogResult) {
@@ -187,41 +180,29 @@ public class Deployer implements Cancellable, OutputProcessor.FilterCallback {
         if (passwd == null) {
             String old = preferences.get(OLD_PASSWD_PROPERTY, null);
             if (old != null) {
-                DeployUtils.out("showDialog old != null");
                 preferences.remove(OLD_PASSWD_PROPERTY);
                 passwd = old.toCharArray();
                 Keyring.save(PASSWD_KEY, passwd, /*XXX I18N*/ "Google App Engine password for " + email);
             } else {
-                DeployUtils.out("showDialog BEFORE Keyring");
                 passwd = Keyring.read(PASSWD_KEY);
-                DeployUtils.out("showDialog AFTER Keyring psw=" + passwd);
-
             }
         }
-        DeployUtils.out("Deployer.showDialog() email=" + email + "; psw=" + passwd);
 
         EmailPanel panel = new EmailPanel();
         panel.setEmail(email);
-        DeployUtils.out("Deployer.showDialog() BEFORE setPsw=");
-
         panel.setPasswd(passwd);
-        DeployUtils.out("Deployer.showDialog() AFTER setPsw=");
         
         panel.setPasswdText(passwd);
-        DeployUtils.out("Deployer.showDialog() AFTER setPswText=" + panel.getPasswdText());
 
         
         if (message != null) {
             panel.setMessage(message);
         }
         String dialogTitle = NbBundle.getMessage(DeployUtils.class, "PasswordTitle");
-        DeployUtils.out("Deployer.showDialog() dialogTitle=" + dialogTitle + "; psw=" + passwd);
 
         DialogDescriptor desriptor = new DialogDescriptor(panel, dialogTitle, true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, null);
-        DeployUtils.out("Deployer.showDialog() BEFORE notify");
 
         Object resultOption = DialogDisplayer.getDefault().notify(desriptor);
-        DeployUtils.out("Deployer.showDialog() AFTER notify");
 
         if (DialogDescriptor.OK_OPTION.equals(resultOption)) {
             email = panel.getEmail();

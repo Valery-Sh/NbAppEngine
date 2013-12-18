@@ -27,7 +27,7 @@ public class EmailPanel extends javax.swing.JPanel {
     public EmailPanel() {
         initComponents();
         message.setVisible(false);
-        DeployUtils.out("EmailPanel cONSTR" );        
+        psw_TextField.setVisible(false);
     }
 
     /** This method is called from within the constructor to
@@ -60,6 +60,8 @@ public class EmailPanel extends javax.swing.JPanel {
 
         passwdField.setText(org.openide.util.NbBundle.getMessage(EmailPanel.class, "EmailPanel.passwdField.text")); // NOI18N
         passwdField.setToolTipText(org.openide.util.NbBundle.getMessage(EmailPanel.class, "EmailPanel.passwdField.toolTipText")); // NOI18N
+
+        psw_TextField.setEditable(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
