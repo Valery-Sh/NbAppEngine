@@ -134,7 +134,7 @@ public class CommandActionProgress extends ActionProgress implements Runnable{
     /**
      * Invokes the action specified by the second parameter 
      * for the project specified by the first parameter.
-     * The method invokes the actions and returns immediately. 
+     * The method invokes the action and returns immediately. 
      * @param project
      * @param actionCommand a command as specified by the ActionProveder
      *  constants.
@@ -154,7 +154,7 @@ public class CommandActionProgress extends ActionProgress implements Runnable{
     /**
      * Invokes the action specified by the second parameter 
      * for the project specified by the first parameter.
-     * The method invokes the actions waits finished. 
+     * The method invokes the action and waits finished. 
      * @param project
      * @param actionCommand a command as specified by the ActionProveder
      *  constants.

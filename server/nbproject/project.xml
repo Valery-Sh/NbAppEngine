@@ -288,8 +288,15 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <!--extra-compilation-unit>
+                <package-root>antsrc</package-root>
+                <classpath>${module.classpath}:${ant.jar}:${tools.jar}:../j2eeapis/external/jsr88javax.jar</classpath>
+                <built-to>build/antclasses</built-to>
+                <built-to>${cluster}/ant/nblib/mmm.jar</built-to>
+            </extra-compilation-unit-->
             <public-packages>
                 <package>org.netbeans.modules.j2ee.appengine</package>
+                <package>org.netbeans.modules.j2ee.appengine.actions</package>
                 <package>org.netbeans.modules.j2ee.appengine.config</package>
                 <package>org.netbeans.modules.j2ee.appengine.customizer</package>
                 <package>org.netbeans.modules.j2ee.appengine.ide</package>
@@ -298,12 +305,6 @@
                 <package>org.netbeans.modules.j2ee.appengine.util</package>
                 <package>org.netbeans.modules.j2ee.appengine.wizards</package>
             </public-packages>
-            <!--extra-compilation-unit>
-                <package-root>antsrc</package-root>
-                <classpath>${module.classpath}:${ant.jar}:${tools.jar}:../j2eeapis/external/jsr88javax.jar</classpath>
-                <built-to>build/antclasses</built-to>
-                <built-to>${cluster}/ant/nblib/mmm.jar</built-to>
-            </extra-compilation-unit-->
         </data>
     </configuration>
 </project>

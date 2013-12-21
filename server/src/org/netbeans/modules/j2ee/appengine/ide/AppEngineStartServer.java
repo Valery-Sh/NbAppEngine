@@ -145,7 +145,7 @@ public class AppEngineStartServer extends StartServer {
         }
         int count = 0;
         Project main = OpenProjects.getDefault().getMainProject();
-        if ( ! Utils.isAppEngineProject(main)) {
+        if ( main != null && ! Utils.isAppEngineProject(main)) {
             main = null;
         }
         for ( Project p : projects) {

@@ -121,6 +121,9 @@ public class AppEngineDeploymentFactory implements DeploymentFactory, LookupList
             return;
         }
         InstanceProperties ip = mp.getInstanceProperties();
+        if ( ip == null ) {
+            return;
+        }
         String uri = ip.getProperty("url");
         if ( ! uri.startsWith(URI_PREFIX)) {
             return;
